@@ -54,25 +54,32 @@ func CleanOutput(output string) *CleanOutputResult {
 	return result
 }
 
-func CleanSimpleOutput(output string) (string, bool) {
-	loc := shellStartMarkerRegex.FindStringIndex(output)
+func CleanSimpleOutput(output string) (string, bool, int) {
+	loc := shellSimpleStartMarkerRegex.FindStringIndex(output)
 	if loc != nil {
 		output = output[loc[1]:]
 	}
 
+	match := shellEndMarkerRegex.FindStringSubmatch(output)
+	if len(match) <= 1 {
+		return output, false, -10
+	}
+
+	code, _ := strconv.Atoi(match[1])
+
 	loc = shellEndMarkerRegex.FindStringIndex(output)
 	if loc == nil {
-		return output, false
+		return output, false, code
 	}
 
 	output = output[:loc[0]]
-	return output, true
+	return output, true, code
 }
 
 func WrapCmd(message string) string {
-	return fmt.Sprintf("printf \"\\033]123;START\\007$(whoami) $(pwd) >>>\\n\" ; { %s ; } ; printf \"\\033]123;$?;DONE\\007\\n\"\n", message)
+	return fmt.Sprintf("printf \"\\033]123;START\\007$(whoami) $(pwd) >>>\\n\" ; { \n%s\n } ; printf \"\\033]123;$?;DONE\\007\\n\"\n", message)
 }
 
 func WrapSimpleCmd(message string) string {
-	return fmt.Sprintf("printf \"\\033]123;START\\007\" ; { %s ; } ; printf \"\\033]123;$?;DONE\\007\\n\"\n", message)
+	return fmt.Sprintf("printf \"\\033]123;START\\007\\n\" ; { \n%s\n } ; printf \"\\033]123;$?;DONE\\007\\n\"\n", message)
 }

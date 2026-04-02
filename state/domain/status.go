@@ -1,8 +1,9 @@
 package statedomain
 
-type Status struct {
-	User  string
-	Dir   string
-	OS    string
-	Shell string
+type Status interface {
+	Load(FastCmd)
+	User() string
+	Dir() string
+	OS() string
+	Shell() string
 }

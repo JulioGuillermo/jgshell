@@ -9,6 +9,11 @@ import (
 func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
+	if !a.state.IsRunning() && (a.statusDepricated || a.status == nil) {
+		a.status = a.state.GetStatus()
+		a.statusDepricated = false
+	}
+
 	if _, c := a.input.Update(msg); c != nil {
 		cmds = append(cmds, c)
 	}
@@ -25,12 +30,13 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmds = append(cmds, c)
 		}
 
-		state := statusbar.StatusBar(a.state, a.width)
-		input := a.input.View(a.width, a.height)
-
 		height := a.height
 		if !a.state.IsRunning() {
+			input := a.input.View(a.width, a.height)
 			height -= lipgloss.Height(input)
+		}
+		if a.status != nil {
+			state := statusbar.StatusBar(a.status, a.width)
 			height -= lipgloss.Height(state)
 		}
 

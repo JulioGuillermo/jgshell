@@ -21,6 +21,8 @@ func (s *State) IsRunning() bool {
 	return s.isRunning
 }
 
-func (s *State) GetStatus() {
-
+func (s *State) GetStatus() statedomain.Status {
+	status := &Status{}
+	status.Load(s)
+	return status
 }

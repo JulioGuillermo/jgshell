@@ -9,7 +9,9 @@ import (
 )
 
 type App struct {
-	state statedomain.State
+	state            statedomain.State
+	status           statedomain.Status
+	statusDepricated bool
 
 	cmdViewPort *cmdcard.CmdViewPort
 	highlighter syntaxdomain.Highlighter
@@ -22,11 +24,12 @@ type App struct {
 
 func NewApp(state statedomain.State, highlighter syntaxdomain.Highlighter) *App {
 	a := &App{
-		state:       state,
-		cmdViewPort: cmdcard.NewCmdViewPort(80, 24, highlighter),
-		highlighter: highlighter,
-		width:       80,
-		height:      24,
+		state:            state,
+		cmdViewPort:      cmdcard.NewCmdViewPort(80, 24, highlighter),
+		highlighter:      highlighter,
+		width:            80,
+		height:           24,
+		statusDepricated: true,
 	}
 	a.input = input.New(state, a.onSend, highlighter)
 	return a
@@ -42,4 +45,5 @@ func (a *App) Init() tea.Cmd {
 func (a *App) onSend(msg string) {
 	a.state.Send(msg)
 	a.cmdViewPort.GoToBottom()
+	a.statusDepricated = true
 }

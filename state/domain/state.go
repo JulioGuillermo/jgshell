@@ -8,7 +8,7 @@ type State interface {
 	IsRunning() bool
 
 	GetAutoComplete() []string
-	GetStatus()
+	GetStatus() Status
 
 	OnClose(f func(s State))
 }

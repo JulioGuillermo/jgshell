@@ -12,8 +12,11 @@ func (a *App) View() tea.View {
 
 	if !a.state.IsRunning() {
 		input := a.input.View(a.width, a.height)
-		state := statusbar.StatusBar(a.state, a.width)
-		elements = append(elements, input, state)
+		elements = append(elements, input)
+	}
+	if a.status != nil {
+		state := statusbar.StatusBar(a.status, a.width)
+		elements = append(elements, state)
 	}
 
 	v := tea.NewView(
