@@ -39,3 +39,7 @@ func (s *State) OnClose(f func(s statedomain.State)) {
 		f(s)
 	})
 }
+
+func (s *State) SetSize(width, height int) {
+	s.shell.SetSize(uint16(height), uint16(width))
+}

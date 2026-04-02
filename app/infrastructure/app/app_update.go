@@ -37,11 +37,12 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		a.cmdViewPort.Resize(a.width, height)
+		a.state.SetSize(a.width-2, height)
 	}
 
 	if _, ok := msg.(tea.WindowSizeMsg); !ok {
 		v, cmd := a.cmdViewPort.Update(a.state.GetHistory(), a.width, msg)
-		a.cmdViewPort = &v
+		a.cmdViewPort = v
 		cmds = append(cmds, cmd)
 	}
 

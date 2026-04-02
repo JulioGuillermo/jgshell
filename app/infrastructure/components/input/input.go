@@ -2,20 +2,25 @@ package input
 
 import (
 	"strings"
+	"time"
 
 	"charm.land/bubbles/v2/textarea"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	statedomain "github.com/julioguillermo/jgshell/state/domain"
+	syntaxdomain "github.com/julioguillermo/jgshell/syntax/domain"
 )
 
 type Input struct {
-	state    statedomain.State
-	textarea textarea.Model
-	onSend   func(string)
+	state       statedomain.State
+	textarea    textarea.Model
+	onSend      func(string)
+	highlighter syntaxdomain.Highlighter
+	showCursor  bool
+	lastInput   time.Time
 }
 
-func New(state statedomain.State, onSend func(string)) *Input {
+func New(state statedomain.State, onSend func(string), highlighter syntaxdomain.Highlighter) *Input {
 	ta := textarea.New()
 	ta.ShowLineNumbers = false
 	ta.DynamicHeight = true
@@ -29,14 +34,15 @@ func New(state statedomain.State, onSend func(string)) *Input {
 	ta.SetStyles(style)
 
 	return &Input{
-		state:    state,
-		onSend:   onSend,
-		textarea: ta,
+		state:       state,
+		onSend:      onSend,
+		textarea:    ta,
+		highlighter: highlighter,
 	}
 }
 
 func (i *Input) Init() tea.Cmd {
-	return textarea.Blink
+	return doBlink()
 }
 
 func (i *Input) Update(msg tea.Msg) (*Input, tea.Cmd) {
@@ -44,13 +50,22 @@ func (i *Input) Update(msg tea.Msg) (*Input, tea.Cmd) {
 		i.textarea.Focus()
 	}
 
-	var cmd tea.Cmd
+	cmds := []tea.Cmd{}
 
 	switch msg := msg.(type) {
+	case CursorBlink:
+		if time.Since(i.lastInput) > time.Millisecond*500 {
+			i.showCursor = !i.showCursor
+			i.lastInput = time.Now()
+		}
+		cmds = append(cmds, doBlink())
 	case tea.KeyMsg:
+		i.lastInput = time.Now()
+		i.showCursor = true
+
 		switch msg.String() {
 		case "enter":
-			i.onSend(i.Value())
+			i.onSend(strings.ReplaceAll(i.Value(), "\\\n", "\n"))
 			i.textarea.SetValue("")
 			return i, nil
 		case "shift+enter", "alt+enter":
@@ -58,22 +73,26 @@ func (i *Input) Update(msg tea.Msg) (*Input, tea.Cmd) {
 		}
 	}
 
-	i.textarea, cmd = i.textarea.Update(msg)
+	ta, cmd := i.textarea.Update(msg)
+	i.textarea = ta
+	cmds = append(cmds, cmd)
 
-	return i, cmd
+	return i, tea.Batch(cmds...)
 }
 
 func (i *Input) View(width, height int) string {
 	i.textarea.SetWidth(width)
 	return lipgloss.NewStyle().
 		Width(width).
+		PaddingLeft(1).
+		PaddingRight(1).
 		BorderStyle(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("#00FF88")).
 		BorderTop(true).
 		BorderLeft(true).
 		BorderRight(true).
 		BorderBottom(true).
-		Render(i.textarea.View())
+		Render(i.Render())
 }
 
 func (i *Input) Value() string {

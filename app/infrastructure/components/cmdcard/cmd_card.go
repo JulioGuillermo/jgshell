@@ -7,6 +7,7 @@ import (
 
 	"charm.land/lipgloss/v2"
 	statedomain "github.com/julioguillermo/jgshell/state/domain"
+	syntaxdomain "github.com/julioguillermo/jgshell/syntax/domain"
 )
 
 var BorderColor = lipgloss.Color("#8800ff")
@@ -111,7 +112,8 @@ func getTopBorder(width int, cmd statedomain.Cmd) string {
 		style.Render(" )╮")
 }
 
-func CmdCard(cmd statedomain.Cmd, width int) string {
+func CmdCard(cmd statedomain.Cmd, width int, highlighter syntaxdomain.Highlighter) string {
+	input := highlighter.Highlight(cmd.Cmd)
 	output := cmd.CleanOuput()
 	borderTop := getTopBorder(width, cmd)
 
@@ -121,5 +123,5 @@ func CmdCard(cmd statedomain.Cmd, width int) string {
 			Border(lipgloss.RoundedBorder(), true).
 			BorderTop(false).
 			BorderForeground(BorderColor).
-			Render(cmd.Cmd+"\n"+output)
+			Render(input+"\n\n"+output)
 }

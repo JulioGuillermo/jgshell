@@ -4,6 +4,7 @@ type State interface {
 	Send(string) error
 	GetHistory() []Cmd
 
+	SetSize(width, height int)
 	ShowInput() bool
 	GetAutoComplete() []string
 

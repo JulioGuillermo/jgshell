@@ -9,6 +9,7 @@ import (
 	shellinfrastructure "github.com/julioguillermo/jgshell/shell/infrastructure"
 	stateapplication "github.com/julioguillermo/jgshell/state/application"
 	statedomain "github.com/julioguillermo/jgshell/state/domain"
+	syntaxinfrastructure "github.com/julioguillermo/jgshell/syntax/infrastruct"
 )
 
 func main() {
@@ -18,10 +19,16 @@ func main() {
 		os.Exit(1)
 	}
 	defer shell.Close()
+	shell.SetSize(24, 80)
 
 	state := stateapplication.NewState(shell)
 
-	app := app.NewApp(state)
+	hl, err := syntaxinfrastructure.NewTSHighlighter()
+	if err != nil {
+		fmt.Printf("Fail to create highlighter: %v", err)
+		os.Exit(1)
+	}
+	app := app.NewApp(state, hl)
 
 	p := tea.NewProgram(app)
 	state.OnClose(func(s statedomain.State) {
