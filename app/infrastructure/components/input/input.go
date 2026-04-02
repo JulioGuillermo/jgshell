@@ -65,6 +65,9 @@ func (i *Input) Update(msg tea.Msg) (*Input, tea.Cmd) {
 
 		switch msg.String() {
 		case "enter":
+			if i.Value() == "" {
+				return i, nil
+			}
 			i.onSend(strings.ReplaceAll(i.Value(), "\\\n", "\n"))
 			i.textarea.SetValue("")
 			return i, nil

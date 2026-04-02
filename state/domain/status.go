@@ -6,4 +6,5 @@ type Status interface {
 	Dir() string
 	OS() string
 	Shell() string
+	Git() *GitStats
 }

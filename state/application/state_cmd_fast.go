@@ -1,6 +1,10 @@
 package stateapplication
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/acarl005/stripansi"
+)
 
 func (s *State) FastCmd(cmd string) (string, int) {
 	s.mu.Lock()
@@ -26,4 +30,10 @@ func (s *State) FastCmd(cmd string) (string, int) {
 	}
 
 	return strings.TrimSpace(output), code
+}
+
+func (s *State) FastCmdClean(cmd string) (string, int) {
+	output, code := s.FastCmd(cmd)
+	cleanText := stripansi.Strip(output)
+	return cleanText, code
 }
