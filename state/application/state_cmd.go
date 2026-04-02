@@ -1,0 +1,85 @@
+package stateapplication
+
+import (
+	"time"
+
+	statedomain "github.com/julioguillermo/jgshell/state/domain"
+)
+
+func (s *State) Send(message string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	defer s.cond.Signal()
+
+	if s.isRunning {
+		_, err := s.shell.Write([]byte(message))
+		return err
+	}
+
+	s.isRunning = true
+	cmd := wrapCmd(message)
+
+	start := time.Now()
+	s.history = append(s.history, statedomain.Cmd{
+		Cmd:   message,
+		Start: &start,
+	})
+
+	_, err := s.shell.Write([]byte(cmd))
+	if err != nil {
+		s.isRunning = false
+		return err
+	}
+
+	return nil
+}
+
+func (s *State) startReader() {
+	go func() {
+		for {
+			s.readOutput()
+		}
+	}()
+}
+
+func (s *State) readOutput() {
+	s.cond.L.Lock()
+	defer s.cond.L.Unlock()
+
+	for !s.isRunning {
+		s.cond.Wait()
+	}
+
+	buffer := make([]byte, 1024)
+	lastCmd := s.lastCmd()
+	n, err := s.shell.Read(buffer)
+
+	if lastCmd == nil {
+		return
+	}
+	if err != nil {
+		lastCmd.Error = err
+		return
+	}
+
+	if n > 0 {
+		result := cleanOutput(lastCmd.Output + string(buffer[:n]))
+		lastCmd.Output = result.Output
+		lastCmd.ExitCode = result.Code
+		if result.Started {
+			lastCmd.Started = true
+		}
+		if lastCmd.PWD == "" {
+			lastCmd.PWD = result.Pwd
+		}
+		if lastCmd.USER == "" {
+			lastCmd.USER = result.Username
+		}
+
+		if result.IsRunning {
+			return
+		}
+		lastCmd.End = result.EndTime
+		s.isRunning = false
+	}
+}
