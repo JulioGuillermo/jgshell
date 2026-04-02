@@ -17,7 +17,7 @@ func (s *State) Send(message string) error {
 	}
 
 	s.isRunning = true
-	cmd := wrapCmd(message)
+	cmd := WrapCmd(message)
 
 	start := time.Now()
 	s.history = append(s.history, statedomain.Cmd{
@@ -63,7 +63,7 @@ func (s *State) readOutput() {
 	}
 
 	if n > 0 {
-		result := cleanOutput(lastCmd.Output + string(buffer[:n]))
+		result := CleanOutput(lastCmd.Output + string(buffer[:n]))
 		lastCmd.Output = result.Output
 		lastCmd.ExitCode = result.Code
 		if result.Started {

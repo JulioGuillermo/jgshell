@@ -7,8 +7,10 @@ import (
 	"time"
 )
 
-var shellEndMarkerRegex = regexp.MustCompile(`\x1b]123;(\d+);DONE\x07`)
 var shellStartMarkerRegex = regexp.MustCompile(`\x1b]123;START\x07([^\s]+) ([^\s\n]+) >>>`)
+var shellSimpleStartMarkerRegex = regexp.MustCompile(`\x1b]123;START\x07`)
+
+var shellEndMarkerRegex = regexp.MustCompile(`\x1b]123;(\d+);DONE\x07`)
 
 type CleanOutputResult struct {
 	Output    string
@@ -20,7 +22,7 @@ type CleanOutputResult struct {
 	EndTime   *time.Time
 }
 
-func cleanOutput(output string) *CleanOutputResult {
+func CleanOutput(output string) *CleanOutputResult {
 	result := &CleanOutputResult{
 		Output:    output,
 		IsRunning: true,
@@ -52,6 +54,25 @@ func cleanOutput(output string) *CleanOutputResult {
 	return result
 }
 
-func wrapCmd(message string) string {
+func CleanSimpleOutput(output string) (string, bool) {
+	loc := shellStartMarkerRegex.FindStringIndex(output)
+	if loc != nil {
+		output = output[loc[1]:]
+	}
+
+	loc = shellEndMarkerRegex.FindStringIndex(output)
+	if loc == nil {
+		return output, false
+	}
+
+	output = output[:loc[0]]
+	return output, true
+}
+
+func WrapCmd(message string) string {
 	return fmt.Sprintf("printf \"\\033]123;START\\007$(whoami) $(pwd) >>>\\n\" ; { %s ; } ; printf \"\\033]123;$?;DONE\\007\\n\"\n", message)
+}
+
+func WrapSimpleCmd(message string) string {
+	return fmt.Sprintf("printf \"\\033]123;START\\007\" ; { %s ; } ; printf \"\\033]123;$?;DONE\\007\\n\"\n", message)
 }

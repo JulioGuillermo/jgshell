@@ -10,14 +10,10 @@ func (a *App) View() tea.View {
 	list := a.cmdViewPort.View()
 	elements := []string{list}
 
-	if a.state.ShowInput() {
+	if !a.state.IsRunning() {
 		input := a.input.View(a.width, a.height)
-		elements = append(elements, input)
-	}
-
-	if a.state.ShowStatusBar() {
 		state := statusbar.StatusBar(a.state, a.width)
-		elements = append(elements, state)
+		elements = append(elements, input, state)
 	}
 
 	v := tea.NewView(

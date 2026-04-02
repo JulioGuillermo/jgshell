@@ -10,5 +10,5 @@ func StatusBar(state statedomain.State, width int) string {
 		Width(width).
 		// Background(lipgloss.Color("#112233")).
 		Foreground(lipgloss.Color("#00ff88")).
-		Render(state.GetDir())
+		Render("")
 }

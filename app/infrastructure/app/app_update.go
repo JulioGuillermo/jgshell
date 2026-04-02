@@ -29,10 +29,8 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		input := a.input.View(a.width, a.height)
 
 		height := a.height
-		if a.state.ShowInput() {
+		if !a.state.IsRunning() {
 			height -= lipgloss.Height(input)
-		}
-		if a.state.ShowStatusBar() {
 			height -= lipgloss.Height(state)
 		}
 

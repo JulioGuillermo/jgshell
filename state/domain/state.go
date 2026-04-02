@@ -5,12 +5,10 @@ type State interface {
 	GetHistory() []Cmd
 
 	SetSize(width, height int)
-	ShowInput() bool
-	GetAutoComplete() []string
+	IsRunning() bool
 
-	ShowStatusBar() bool
-	GetDir() string
-	GetTime() string
+	GetAutoComplete() []string
+	GetStatus()
 
 	OnClose(f func(s State))
 }
