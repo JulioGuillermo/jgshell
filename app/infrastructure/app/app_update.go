@@ -39,6 +39,8 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if c := a.HandleWindowSize(msg); c != nil {
 			cmds = append(cmds, c)
 		}
+	case tea.PasteMsg:
+		a.sendPaste(msg)
 	}
 
 	height := a.height
