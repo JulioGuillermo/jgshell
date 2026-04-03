@@ -19,6 +19,9 @@ func main() {
 			continue
 		}
 		if a != "" {
+			if i > 1 {
+				cmd += " "
+			}
 			cmd += a
 		}
 	}

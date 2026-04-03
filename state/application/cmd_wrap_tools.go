@@ -92,15 +92,49 @@ func GetPS1() string {
 func WrapCmd(message string, uuid string) string {
 	// return fmt.Sprintf("printf \"\\033]123;START\\007$(whoami) $(pwd) >>>\\n\" ; { \n%s\n } ; printf \"\\033]123;$?;DONE\\007\\n\"\n", message)
 	return fmt.Sprintf("export JG_BLOCK_UUID=%s; printf \"\\033]123;START\\007$(whoami) $(pwd) >>>\\n\" ; { \n%s\n } ; printf \"\\033]123;$?;$JG_BLOCK_UUID;DONE\\007\\n\"\n", uuid, message)
-	// return fmt.Sprintf("export JG_BLOCK_UUID=%s; printf \"\\033]123;START\\007$(whoami) $(pwd) >>>\\n\" ; { %s };", uuid, message)
+	// return fmt.Sprintf("export JG_BLOCK_UUID=%s; printf \"\\033]123;START\\007$(whoami) $(pwd) >>>\\n\" ; { %s }\n", uuid, message)
+	// return fmt.Sprintf("export JG_BLOCK_UUID=%s; { \n%s\n }\n", uuid, message)
 }
 
 func WrapSimpleCmd(message string, uuid string) string {
 	// return fmt.Sprintf("printf \"\\033]123;START\\007\\n\" ; { \n%s\n } ; printf \"\\033]123;$?;DONE\\007\\n\"\n", message)
 	return fmt.Sprintf("export JG_BLOCK_UUID=%s; printf \"\\033]123;START\\007\\n\" ; { \n%s\n } ; printf \"\\033]123;$?;$JG_BLOCK_UUID;DONE\\007\\n\"\n", uuid, message)
 	// return fmt.Sprintf("export JG_BLOCK_UUID=%s; printf \"\\033]123;START\\007\\n\" ; { \n%s\n }\n", uuid, message)
+	// return fmt.Sprintf("export JG_BLOCK_UUID=%s; { \n%s\n }\n", uuid, message)
 }
 
 func GetUUID() string {
 	return uuid.New().String()
+}
+
+// GetWrapperScriptName returns the wrapper filename for a given shell type
+func GetWrapperScriptName(shellType string) string {
+	switch shellType {
+	case "bash":
+		return "wrapper_bash"
+	case "zsh":
+		return "wrapper_zsh"
+	case "fish":
+		return "wrapper_fish"
+	case "nushell":
+		return "wrapper_nushell"
+	case "powershell":
+		return "wrapper_powershell"
+	default:
+		return "wrapper_sh"
+	}
+}
+
+// GetWrapperSourceCmd returns the shell command to source the wrapper script
+func GetWrapperSourceCmd(wrapperPath string, shellType string) string {
+	switch shellType {
+	case "fish":
+		return fmt.Sprintf("source %s", wrapperPath)
+	case "powershell":
+		return fmt.Sprintf(". %s", wrapperPath)
+	case "nushell":
+		return fmt.Sprintf("source %s", wrapperPath)
+	default:
+		return fmt.Sprintf(". %s", wrapperPath)
+	}
 }

@@ -41,7 +41,8 @@ func (s *State) Write(message []byte) error {
 }
 
 func (s *State) startReader() {
-	s.shell.Write([]byte(GetPS1()))
+	// s.shell.Write([]byte(GetPS1()))
+	// s.Wrap()
 	go func() {
 		for {
 			s.readOutput()
