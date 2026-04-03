@@ -1,3 +1,5 @@
+set +o history
+
 # Función para el inicio (Solo se dispara antes del comando del usuario)
 _jg_preexec() {
     # Evitamos que se ejecute si el comando está vacío

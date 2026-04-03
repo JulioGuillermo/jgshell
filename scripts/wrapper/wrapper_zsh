@@ -1,10 +1,12 @@
-#!/bin/zsh
 # Markers:
 #   START: \x1b]123;START\x07<user> <pwd> >>>
 #   END:   \x1b]123;<exit_code>;<uuid>;DONE\x07
 
+unsetopt PROMPT_SP
+unset HISTFILE
+
 _jg_emit_start_marker() {
-    printf '\033]123;START\007%s %s >>>\n' "$(whoami)" "$(pwd)"
+    printf '\033]123;START\007%s %s >>>' "$(whoami)" "$(pwd)"
 }
 
 add-zsh-hook preexec _jg_emit_start_marker 2>/dev/null || {
@@ -12,4 +14,4 @@ add-zsh-hook preexec _jg_emit_start_marker 2>/dev/null || {
     add-zsh-hook preexec _jg_emit_start_marker
 }
 
-PS1='$(printf "\033]123;$?;${JG_BLOCK_UUID};DONE\007\n")'
+PS1='$(printf "\033]123;$?;DONE\007")'

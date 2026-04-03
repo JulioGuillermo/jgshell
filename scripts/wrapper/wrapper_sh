@@ -2,10 +2,11 @@
 # Markers:
 #   START: \x1b]123;START\x07<user> <pwd> >>>
 #   END:   \x1b]123;<exit_code>;<uuid>;DONE\x07
+export HISTSIZE=0
 
-PS1='$(printf "\033]123;$?;${JG_BLOCK_UUID};DONE\007\n")'
+PS1='$(printf "\033]123;$?;DONE\007")'
 
 _jg_emit_start_marker() {
-    printf '\033]123;START\007%s %s >>>\n' "$(whoami)" "$(pwd)"
+    printf '\033]123;START\007%s %s >>>' "$(whoami)" "$(pwd)"
 }
 trap '_jg_emit_start_marker' DEBUG 2>/dev/null
