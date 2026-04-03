@@ -13,10 +13,6 @@ func (s *State) GetHistory() []statedomain.Cmd {
 	return s.history
 }
 
-func (s *State) GetAutoComplete() []string {
-	return []string{}
-}
-
 func (s *State) IsRunning() bool {
 	return s.isRunning
 }
