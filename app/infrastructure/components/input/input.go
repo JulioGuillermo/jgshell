@@ -104,3 +104,11 @@ func (i *Input) Value() string {
 	value = strings.ReplaceAll(value, "\n", "\\\n")
 	return value
 }
+
+func (i *Input) SetValue(value string) {
+	i.textarea.SetValue(value)
+}
+
+func (i *Input) Insert(value string) {
+	i.textarea.InsertString(value)
+}

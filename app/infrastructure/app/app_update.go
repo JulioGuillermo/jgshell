@@ -14,8 +14,15 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		a.statusDepricated = false
 	}
 
-	if !a.state.IsRunning() {
+	if !a.state.IsRunning() && !a.showAutocomplete {
 		_, c := a.input.Update(msg)
+		if c != nil {
+			cmds = append(cmds, c)
+		}
+	}
+
+	if a.showAutocomplete {
+		_, c := a.autocomplete.Update(msg, a.width)
 		if c != nil {
 			cmds = append(cmds, c)
 		}
@@ -32,28 +39,24 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if c := a.HandleWindowSize(msg); c != nil {
 			cmds = append(cmds, c)
 		}
-
-		height := a.height
-		if !a.state.IsRunning() {
-			input := a.input.View(a.width, a.height)
-			height -= lipgloss.Height(input)
-		}
-		if a.status != nil {
-			state := statusbar.StatusBar(a.status, a.width)
-			height -= lipgloss.Height(state)
-		}
-		if a.showAutocomplete {
-			autocomplete := a.autocomplete.View(a.width, a.height)
-			height -= lipgloss.Height(autocomplete)
-		}
-
-		a.cmdViewPort.Resize(a.width, height)
-		a.state.SetSize(a.width-2, height)
 	}
 
-	if _, c := a.autocomplete.Update(msg, a.width); c != nil {
-		cmds = append(cmds, c)
+	height := a.height
+	if !a.state.IsRunning() {
+		input := a.input.View(a.width, a.height)
+		height -= lipgloss.Height(input)
 	}
+	if a.status != nil {
+		state := statusbar.StatusBar(a.status, a.width)
+		height -= lipgloss.Height(state)
+	}
+	if a.showAutocomplete {
+		autocomplete := a.autocomplete.View(a.width, a.height)
+		height -= lipgloss.Height(autocomplete)
+	}
+
+	a.cmdViewPort.Resize(a.width, height)
+	a.state.SetSize(a.width-2, height)
 
 	if _, ok := msg.(tea.WindowSizeMsg); !ok {
 		v, cmd := a.cmdViewPort.Update(a.state.GetHistory(), a.width, msg)

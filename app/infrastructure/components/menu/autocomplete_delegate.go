@@ -24,18 +24,22 @@ func (d itemDelegate) Spacing() int                            { return 0 }
 func (d itemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
 
 func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+	total := len(m.Items())
+	total = len(fmt.Sprint(total))
+
 	i, ok := listItem.(Item)
 	if !ok {
 		return
 	}
 
-	str := fmt.Sprintf("%d. %s", index+1, i)
+	fStr := fmt.Sprintf("%%0%dd. %%s", total)
+	str := fmt.Sprintf(fStr, index+1, i)
 
 	output := ""
 	if index == m.Index() {
 		output = SelectedItemStyle.Render("> " + str)
 	} else {
-		output = ItemStyle.Render(str)
+		output = ItemStyle.Render("  " + str)
 	}
 
 	fmt.Fprint(w, output)

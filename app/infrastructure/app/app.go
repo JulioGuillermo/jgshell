@@ -36,6 +36,12 @@ func NewApp(state statedomain.State, highlighter syntaxdomain.Highlighter) *App 
 	}
 	a.input = input.New(state, a.onSend, highlighter)
 	a.autocomplete = menu.NewAutocomplete()
+	a.autocomplete.OnClose = func() {
+		a.showAutocomplete = false
+	}
+	a.autocomplete.OnSelect = func(item string) {
+		a.input.InsertAutocomplete(item)
+	}
 	return a
 }
 
