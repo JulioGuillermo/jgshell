@@ -76,23 +76,31 @@ func (a *Autocomplete) OnKey(key string) {
 			a.OnClose()
 		}
 	case "enter":
-		if a.list.SettingFilter() {
-			return
-		}
-		if len(a.items) == 0 {
-			return
-		}
-		selected := a.items[a.list.GlobalIndex()]
-		if a.OnSelect != nil {
-			a.OnSelect(string(selected))
-		}
-		if a.OnClose != nil {
-			a.OnClose()
-		}
+		a.onSelect()
 	case "tab":
 		a.list.CursorDown()
 	case "shift+tab":
 		a.list.CursorUp()
+	}
+}
+
+func (a *Autocomplete) onSelect() {
+	if len(a.items) == 0 {
+		return
+	}
+	if a.list.SettingFilter() {
+		return
+	}
+	idx := a.list.Index()
+	if a.list.FilterValue() != "" {
+		idx = a.list.GlobalIndex()
+	}
+	selected := a.items[idx]
+	if a.OnSelect != nil {
+		a.OnSelect(string(selected))
+	}
+	if a.OnClose != nil {
+		a.OnClose()
 	}
 }
 
