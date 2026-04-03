@@ -1,6 +1,7 @@
 package stateapplication
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -9,12 +10,8 @@ import (
 	"github.com/google/uuid"
 )
 
-var shellStartMarkerRegex = regexp.MustCompile(`\033]123;START\007([^\s]+) ([^\s\n]+) >>>`)
-
-const (
-	// shellEndMarkerFormat = `\x1b]123;(\d+);%{UUID};DONE\x07`
-	shellEndMarkerFormat = `\033]123;(\d+);DONE\007`
-)
+var shellStartMarkerRegex = regexp.MustCompile(`\033]123;START;([^\s]+);([^\s\n]+);>>>\007`)
+var shellEndMarkerRegex = regexp.MustCompile(`\033]123;(\d+);DONE\007`)
 
 type CleanOutputResult struct {
 	Output    string
@@ -27,8 +24,6 @@ type CleanOutputResult struct {
 }
 
 func CleanOutput(output string, started bool, uuid string) *CleanOutputResult {
-	var shellEndMarkerRegex = regexp.MustCompile(strings.ReplaceAll(shellEndMarkerFormat, "%{UUID}", uuid))
-
 	result := &CleanOutputResult{
 		Output:    output,
 		Started:   started,
@@ -48,7 +43,7 @@ func CleanOutput(output string, started bool, uuid string) *CleanOutputResult {
 		return result
 	}
 
-	result.Output = shellStartMarkerRegex.ReplaceAllString(result.Output, "")
+	// result.Output = shellStartMarkerRegex.ReplaceAllString(result.Output, "")
 
 	match := shellEndMarkerRegex.FindStringSubmatch(result.Output)
 	if len(match) <= 1 {
@@ -66,11 +61,13 @@ func CleanOutput(output string, started bool, uuid string) *CleanOutputResult {
 }
 
 func WrapCmd(message string, uuid string) string {
+	message = strings.TrimSpace(message)
 	// return fmt.Sprintf("printf \"\\033]123;START\\007$(whoami) $(pwd) >>>\\n\" ; { \n%s\n } ; printf \"\\033]123;$?;DONE\\007\\n\"\n", message)
 	// return fmt.Sprintf("export JG_BLOCK_UUID=%s; printf \"\\033]123;START\\007$(whoami) $(pwd) >>>\\n\" ; { \n%s\n } ; printf \"\\033]123;$?;$JG_BLOCK_UUID;DONE\\007\\n\"\n", uuid, message)
 	// return fmt.Sprintf("export JG_BLOCK_UUID=%s; printf \"\\033]123;START\\007$(whoami) $(pwd) >>>\\n\" ; { %s }\n", uuid, message)
 	// return fmt.Sprintf("export JG_BLOCK_UUID=%s; { \n%s\n }\n", uuid, message)
-	return "{\n" + strings.TrimSpace(message) + "\n}\n"
+	return fmt.Sprintf("printf \"\\033]123;START;$(whoami);$(pwd);>>>\\007\" ; { %s ; }\n", message)
+	// return "{\n" + strings.TrimSpace(message) + "\n}\n"
 }
 
 func GetUUID() string {

@@ -6,7 +6,7 @@ export HISTSIZE=0
 
 PS1='$(printf "\033]123;$?;DONE\007")'
 
-_jg_emit_start_marker() {
-    printf '\033]123;START\007%s %s >>>' "$(whoami)" "$(pwd)"
-}
-trap '_jg_emit_start_marker' DEBUG 2>/dev/null
+# _jg_emit_start_marker() {
+#     printf '\033]123;START;%s;%s;>>>\007' "$(whoami)" "$(pwd)"
+# }
+# trap '_jg_emit_start_marker' DEBUG 2>/dev/null

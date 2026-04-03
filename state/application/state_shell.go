@@ -3,8 +3,6 @@ package stateapplication
 import (
 	"fmt"
 	"strings"
-
-	"github.com/acarl005/stripansi"
 )
 
 func (s *State) GetSimpleOutput(cmd string) string {
@@ -36,7 +34,7 @@ func (s *State) GetSimpleOutput(cmd string) string {
 		}
 
 		output += string(buf[:n])
-		output := stripansi.Strip(output)
+		// output = stripansi.Strip(output)
 		if strings.Contains(output, End) {
 			break
 		}
@@ -56,7 +54,7 @@ func (s *State) GetSimpleOutput(cmd string) string {
 
 func (s *State) GetShell() string {
 	psVersion := s.GetSimpleOutput("printf \"$PSVersionTable\"")
-	if psVersion != "" {
+	if strings.Contains(psVersion, "PSVersionHashTable") {
 		return "powershell"
 	}
 	return s.GetSimpleOutput("ps -p $$ -o comm= 2>/dev/null | sed 's/-//' || echo \"sh\"")

@@ -6,7 +6,7 @@ _jg_preexec() {
     [ -z "$BASH_COMMAND" ] && return
 
     # Emitimos el marcador de inicio
-    printf '\033]123;START\007%s %s >>>' "$(whoami)" "$(pwd)"
+    printf '\033]123;START;%s;%s;>>>\007' "$(whoami)" "$(pwd)"
 }
 
 # Función para el final (Se mete en el Prompt)
@@ -18,7 +18,7 @@ _jg_prompt() {
 
 # En Bash, usamos el trap DEBUG pero con un seguro
 # set -o functrace
-trap '_jg_preexec' DEBUG
+# trap '_jg_preexec' DEBUG
 
 # El PS1 solo llama a la función de cierre
 PS1='$(_jg_prompt) '

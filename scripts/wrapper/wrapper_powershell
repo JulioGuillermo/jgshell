@@ -1,4 +1,3 @@
-#!/usr/bin/env pwsh
 # Markers:
 #   START: \x1b]123;START\x07<user> <pwd> >>>
 #   END:   \x1b]123;<exit_code>;<uuid>;DONE\x07
