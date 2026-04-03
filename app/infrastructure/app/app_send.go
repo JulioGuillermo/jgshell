@@ -7,10 +7,17 @@ import (
 )
 
 func (a *App) sendPaste(msg tea.PasteMsg) {
+	if !a.state.IsRunning() {
+		return
+	}
 	a.state.Send(msg.Content)
 }
 
 func (a *App) sendKey(msg tea.KeyMsg) {
+	if !a.state.IsRunning() {
+		return
+	}
+
 	keyStr := msg.String()
 
 	// Handle special keys mapping to ANSI/ASCII

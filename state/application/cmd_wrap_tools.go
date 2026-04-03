@@ -10,7 +10,6 @@ import (
 )
 
 var shellStartMarkerRegex = regexp.MustCompile(`\033]123;START\007([^\s]+) ([^\s\n]+) >>>`)
-var shellSimpleStartMarkerRegex = regexp.MustCompile(`\033]123;START\007`)
 
 const (
 	// shellEndMarkerFormat = `\x1b]123;(\d+);%{UUID};DONE\x07`
@@ -71,7 +70,7 @@ func WrapCmd(message string, uuid string) string {
 	// return fmt.Sprintf("export JG_BLOCK_UUID=%s; printf \"\\033]123;START\\007$(whoami) $(pwd) >>>\\n\" ; { \n%s\n } ; printf \"\\033]123;$?;$JG_BLOCK_UUID;DONE\\007\\n\"\n", uuid, message)
 	// return fmt.Sprintf("export JG_BLOCK_UUID=%s; printf \"\\033]123;START\\007$(whoami) $(pwd) >>>\\n\" ; { %s }\n", uuid, message)
 	// return fmt.Sprintf("export JG_BLOCK_UUID=%s; { \n%s\n }\n", uuid, message)
-	return strings.TrimSpace(message) + "\n"
+	return "{\n" + strings.TrimSpace(message) + "\n}\n"
 }
 
 func GetUUID() string {
