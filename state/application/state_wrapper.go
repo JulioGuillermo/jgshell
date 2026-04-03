@@ -49,12 +49,25 @@ func (s *State) Wrap() {
 
 	fmt.Fprintf(
 		s.shell,
-		`cat << 'EOF' > wrapper.sh
+		`cat << 'EOF' > .wrapper.sh
 %s
 EOF
 
-chmod +x wrapper.sh
-. ./wrapper.sh
+chmod +x .wrapper.sh
+. ./.wrapper.sh
+
+printf "Wrapper script executed successfully"
 `,
 		script)
+
+	buf := make([]byte, 1024)
+	for {
+		n, err := s.shell.Read(buf)
+		if err != nil {
+			break
+		}
+		if n < 100 {
+			break
+		}
+	}
 }

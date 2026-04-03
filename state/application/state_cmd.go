@@ -31,6 +31,8 @@ func (s *State) Write(message []byte) error {
 		Start: &start,
 	})
 
+	s.Clear()
+
 	_, err := s.shell.Write([]byte(cmd))
 	if err != nil {
 		s.isRunning = false
@@ -41,8 +43,7 @@ func (s *State) Write(message []byte) error {
 }
 
 func (s *State) startReader() {
-	// s.shell.Write([]byte(GetPS1()))
-	// s.Wrap()
+	s.Wrap()
 	go func() {
 		for {
 			s.readOutput()
@@ -70,24 +71,26 @@ func (s *State) readOutput() {
 		return
 	}
 
-	if n > 0 {
-		result := CleanOutput(lastCmd.Output+string(buffer[:n]), lastCmd.UUID)
-		lastCmd.Output = result.Output
-		lastCmd.ExitCode = result.Code
-		if result.Started {
-			lastCmd.Started = true
-		}
-		if lastCmd.PWD == "" {
-			lastCmd.PWD = result.Pwd
-		}
-		if lastCmd.USER == "" {
-			lastCmd.USER = result.Username
-		}
-
-		if result.IsRunning {
-			return
-		}
-		lastCmd.End = result.EndTime
-		s.isRunning = false
+	if n <= 0 {
+		return
 	}
+
+	result := CleanOutput(lastCmd.Output+string(buffer[:n]), lastCmd.Started, lastCmd.UUID)
+	lastCmd.Output = result.Output
+	lastCmd.ExitCode = result.Code
+	if result.Started {
+		lastCmd.Started = true
+	}
+	if lastCmd.PWD == "" {
+		lastCmd.PWD = result.Pwd
+	}
+	if lastCmd.USER == "" {
+		lastCmd.USER = result.Username
+	}
+
+	if result.IsRunning {
+		return
+	}
+	lastCmd.End = result.EndTime
+	s.isRunning = false
 }

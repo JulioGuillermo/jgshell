@@ -13,20 +13,32 @@ func (s *State) FastCmd(cmd string) (string, int) {
 	uuid := GetUUID()
 	s.isRunning = false
 
-	cmd = WrapSimpleCmd(cmd, uuid)
-	s.shell.Write([]byte(cmd))
+	s.Clear()
+	_, err := s.shell.Write([]byte(WrapCmd(cmd, uuid)))
+	if err != nil {
+		return err.Error(), -2
+	}
 
 	output := ""
 	buf := make([]byte, 1024)
-	end := false
+	started := false
 	code := -10
-	for !end {
+	for {
 		n, err := s.shell.Read(buf)
 		if err != nil {
 			break
 		}
-		if n > 0 {
-			output, end, code = CleanSimpleOutput(output+string(buf[:n]), uuid)
+		if n <= 0 {
+			continue
+		}
+		result := CleanOutput(output+string(buf[:n]), started, uuid)
+		output = result.Output
+		code = result.Code
+		if result.Started {
+			started = true
+		}
+		if !result.IsRunning {
+			break
 		}
 	}
 

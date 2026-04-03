@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/julioguillermo/jgshell/scripts"
 	statedomain "github.com/julioguillermo/jgshell/state/domain"
 )
 
@@ -18,17 +17,18 @@ var (
 func (s *Status) Load(cmd statedomain.FastCmd) {
 	s.shell = cmd.GetShell()
 
-	script, err := scripts.StatusScript.ReadFile("status/status.sh")
-	if err != nil {
-		return
-	}
+	// script, err := scripts.StatusScript.ReadFile("status/status.sh")
+	// if err != nil {
+	// 	return
+	// }
 
-	output, _ := cmd.FastCmdClean(string(script))
+	// output, _ := cmd.FastCmdClean(string(script))
+	// s.dir = output
 
-	s.parseOS(output)
-	s.parseUser(output)
-	s.parseDir(output)
-	s.parseGit(output)
+	// s.parseOS(output)
+	// s.parseUser(output)
+	// s.parseDir(output)
+	// s.parseGit(output)
 }
 
 func (s *Status) parseOS(output string) {

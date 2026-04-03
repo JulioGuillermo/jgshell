@@ -34,9 +34,6 @@ if [ -z "$DIR" ]; then
 fi
 DIR=$(echo "$DIR" | tr -d '\r\n')
 
-echo "OS: ($OS)"
-echo "User: ($USER)"
-echo "Dir: ($DIR)"
-echo "=== GIT START ==="
-git status -sb 2>/dev/null || echo "NO GIT"
-echo "=== GIT END ==="
+GIT_STATUS=$(git status -sb 2>/dev/null || echo "NO GIT")
+
+printf "OS: (%s)\nUser: (%s)\nDir: (%s)\n=== GIT START ===\n%s\n=== GIT END ===" "$OS" "$USER" "$DIR" "$GIT_STATUS"
