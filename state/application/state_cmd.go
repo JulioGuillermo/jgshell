@@ -7,21 +7,27 @@ import (
 )
 
 func (s *State) Send(message string) error {
+	return s.Write([]byte(message))
+}
+
+func (s *State) Write(message []byte) error {
+	if s.isRunning {
+		_, err := s.shell.Write(message)
+		return err
+	}
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	defer s.cond.Signal()
 
-	if s.isRunning {
-		_, err := s.shell.Write([]byte(message))
-		return err
-	}
-
+	uuid := GetUUID()
 	s.isRunning = true
-	cmd := WrapCmd(message)
+	cmd := WrapCmd(string(message), uuid)
 
 	start := time.Now()
 	s.history = append(s.history, statedomain.Cmd{
-		Cmd:   message,
+		UUID:  uuid,
+		Cmd:   string(message),
 		Start: &start,
 	})
 
@@ -35,6 +41,7 @@ func (s *State) Send(message string) error {
 }
 
 func (s *State) startReader() {
+	s.shell.Write([]byte(GetPS1()))
 	go func() {
 		for {
 			s.readOutput()
@@ -63,7 +70,7 @@ func (s *State) readOutput() {
 	}
 
 	if n > 0 {
-		result := CleanOutput(lastCmd.Output + string(buffer[:n]))
+		result := CleanOutput(lastCmd.Output+string(buffer[:n]), lastCmd.UUID)
 		lastCmd.Output = result.Output
 		lastCmd.ExitCode = result.Code
 		if result.Started {

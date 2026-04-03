@@ -43,10 +43,10 @@ func getStatusCode(code int, duration time.Duration) string {
 }
 
 func getDuration(duration time.Duration) string {
-	hour := duration.Hours()
-	min := duration.Minutes()
-	sec := duration.Seconds()
-	mil := duration.Microseconds()
+	hour := int(duration.Hours())
+	min := int(duration.Minutes()) % 60
+	sec := int(duration.Seconds()) % 60
+	mil := int(duration.Microseconds()) % 1000
 
 	color := "#00ff00"
 	switch {
@@ -58,7 +58,7 @@ func getDuration(duration time.Duration) string {
 		color = "#00ff55"
 	}
 
-	dur := fmt.Sprintf("%02d:%02d:%02d.%03d", int(hour), int(min)%60, int(sec)%60, mil%1000)
+	dur := fmt.Sprintf("%02d:%02d:%02d.%03d", hour, min, sec, mil)
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color(color)).
 		Render(dur)

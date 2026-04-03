@@ -21,8 +21,8 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tickMsg:
 		cmds = append(cmds, doTick())
-	case tea.KeyPressMsg:
-		if c := a.HandleKeyPress(msg.String()); c != nil {
+	case tea.KeyMsg:
+		if c := a.HandleKeyPress(msg); c != nil {
 			cmds = append(cmds, c)
 		}
 	case tea.WindowSizeMsg:

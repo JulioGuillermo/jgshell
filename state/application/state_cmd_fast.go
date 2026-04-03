@@ -10,9 +10,10 @@ func (s *State) FastCmd(cmd string) (string, int) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	uuid := GetUUID()
 	s.isRunning = false
 
-	cmd = WrapSimpleCmd(cmd)
+	cmd = WrapSimpleCmd(cmd, uuid)
 	s.shell.Write([]byte(cmd))
 
 	output := ""
@@ -25,7 +26,7 @@ func (s *State) FastCmd(cmd string) (string, int) {
 			break
 		}
 		if n > 0 {
-			output, end, code = CleanSimpleOutput(output + string(buf[:n]))
+			output, end, code = CleanSimpleOutput(output+string(buf[:n]), uuid)
 		}
 	}
 

@@ -7,6 +7,7 @@ import (
 )
 
 type Cmd struct {
+	UUID     string
 	Cmd      string
 	Output   string
 	PWD      string

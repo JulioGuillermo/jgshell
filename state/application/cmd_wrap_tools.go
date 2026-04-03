@@ -4,13 +4,18 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 var shellStartMarkerRegex = regexp.MustCompile(`\x1b]123;START\x07([^\s]+) ([^\s\n]+) >>>`)
 var shellSimpleStartMarkerRegex = regexp.MustCompile(`\x1b]123;START\x07`)
 
-var shellEndMarkerRegex = regexp.MustCompile(`\x1b]123;(\d+);DONE\x07`)
+const (
+	shellEndMarkerFormat = `\x1b]123;(\d+);%{UUID};DONE\x07`
+)
 
 type CleanOutputResult struct {
 	Output    string
@@ -22,7 +27,9 @@ type CleanOutputResult struct {
 	EndTime   *time.Time
 }
 
-func CleanOutput(output string) *CleanOutputResult {
+func CleanOutput(output string, uuid string) *CleanOutputResult {
+	var shellEndMarkerRegex = regexp.MustCompile(strings.ReplaceAll(shellEndMarkerFormat, "%{UUID}", uuid))
+
 	result := &CleanOutputResult{
 		Output:    output,
 		IsRunning: true,
@@ -54,7 +61,9 @@ func CleanOutput(output string) *CleanOutputResult {
 	return result
 }
 
-func CleanSimpleOutput(output string) (string, bool, int) {
+func CleanSimpleOutput(output string, uuid string) (string, bool, int) {
+	var shellEndMarkerRegex = regexp.MustCompile(strings.ReplaceAll(shellEndMarkerFormat, "%{UUID}", uuid))
+
 	loc := shellSimpleStartMarkerRegex.FindStringIndex(output)
 	if loc != nil {
 		output = output[loc[1]:]
@@ -76,10 +85,22 @@ func CleanSimpleOutput(output string) (string, bool, int) {
 	return output, true, code
 }
 
-func WrapCmd(message string) string {
-	return fmt.Sprintf("printf \"\\033]123;START\\007$(whoami) $(pwd) >>>\\n\" ; { \n%s\n } ; printf \"\\033]123;$?;DONE\\007\\n\"\n", message)
+func GetPS1() string {
+	return "PS1=$(printf \"\\033]123;$?;$JG_BLOCK_UUID;DONE\\007\\n\")\n"
 }
 
-func WrapSimpleCmd(message string) string {
-	return fmt.Sprintf("printf \"\\033]123;START\\007\\n\" ; { \n%s\n } ; printf \"\\033]123;$?;DONE\\007\\n\"\n", message)
+func WrapCmd(message string, uuid string) string {
+	// return fmt.Sprintf("printf \"\\033]123;START\\007$(whoami) $(pwd) >>>\\n\" ; { \n%s\n } ; printf \"\\033]123;$?;DONE\\007\\n\"\n", message)
+	return fmt.Sprintf("export JG_BLOCK_UUID=%s; printf \"\\033]123;START\\007$(whoami) $(pwd) >>>\\n\" ; { \n%s\n } ; printf \"\\033]123;$?;$JG_BLOCK_UUID;DONE\\007\\n\"\n", uuid, message)
+	// return fmt.Sprintf("export JG_BLOCK_UUID=%s; printf \"\\033]123;START\\007$(whoami) $(pwd) >>>\\n\" ; { %s };", uuid, message)
+}
+
+func WrapSimpleCmd(message string, uuid string) string {
+	// return fmt.Sprintf("printf \"\\033]123;START\\007\\n\" ; { \n%s\n } ; printf \"\\033]123;$?;DONE\\007\\n\"\n", message)
+	return fmt.Sprintf("export JG_BLOCK_UUID=%s; printf \"\\033]123;START\\007\\n\" ; { \n%s\n } ; printf \"\\033]123;$?;$JG_BLOCK_UUID;DONE\\007\\n\"\n", uuid, message)
+	// return fmt.Sprintf("export JG_BLOCK_UUID=%s; printf \"\\033]123;START\\007\\n\" ; { \n%s\n }\n", uuid, message)
+}
+
+func GetUUID() string {
+	return uuid.New().String()
 }

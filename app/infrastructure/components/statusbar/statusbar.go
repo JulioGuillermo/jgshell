@@ -21,9 +21,9 @@ func StatusBar(status statedomain.Status, width int) string {
 
 	size := lipgloss.Width(left) + lipgloss.Width(right)
 
-	space := strings.Repeat(" ", max(width-size, 3))
+	space := strings.Repeat(" ", max(width-size-2, 3))
 
 	return lipgloss.NewStyle().
 		Width(width).
-		Render(left + space + right)
+		Render(" " + left + space + right)
 }

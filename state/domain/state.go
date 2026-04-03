@@ -2,6 +2,7 @@ package statedomain
 
 type State interface {
 	Send(string) error
+	Write([]byte) error
 	GetHistory() []Cmd
 
 	SetSize(width, height int)
