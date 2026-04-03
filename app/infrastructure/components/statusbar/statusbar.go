@@ -9,14 +9,18 @@ import (
 
 func StatusBar(status statedomain.Status, width int) string {
 	os := GetOS(status.OS())
+	shell := GetShell(status.Shell())
 	user := GetUser(status.User())
 	pwd := GetPwdHome(status)
 	git := GetGit(status)
 
 	left := user + " >> " + pwd
 	right := os
+	if shell != "" {
+		right = shell + " " + right
+	}
 	if git != "" {
-		right = git + " " + os
+		right = git + " " + right
 	}
 
 	size := lipgloss.Width(left) + lipgloss.Width(right)

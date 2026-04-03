@@ -14,6 +14,10 @@ func (a *App) View() tea.View {
 		input := a.input.View(a.width, a.height)
 		elements = append(elements, input)
 	}
+	if a.showAutocomplete {
+		autocomplete := a.autocomplete.View(a.width, a.height)
+		elements = append(elements, autocomplete)
+	}
 	if a.status != nil {
 		state := statusbar.StatusBar(a.status, a.width)
 		elements = append(elements, state)

@@ -13,7 +13,20 @@ import (
 )
 
 func main() {
-	shell, err := shellinfrastructure.NewShellConnector("bash")
+	cmd := ""
+	for i, a := range os.Args {
+		if i == 0 {
+			continue
+		}
+		if a != "" {
+			cmd += a
+		}
+	}
+	if cmd == "" {
+		cmd = "bash"
+	}
+
+	shell, err := shellinfrastructure.NewShellConnector(cmd)
 	if err != nil {
 		fmt.Printf("Fail to start shell: %v", err)
 		os.Exit(1)

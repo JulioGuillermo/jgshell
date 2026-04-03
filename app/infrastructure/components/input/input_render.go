@@ -7,22 +7,6 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
-func (i *Input) Position() int {
-	// textarea uses (row, col) internally for cursor, but we need absolute position for completion
-	// Let's calculate it from the value and cursor position
-	val := i.textarea.Value()
-	cursorLine := i.textarea.Line()
-	cursorCol := i.textarea.LineInfo().CharOffset
-
-	lines := strings.Split(val, "\n")
-	pos := 0
-	for l := 0; l < cursorLine; l++ {
-		pos += utf8.RuneCountInString(lines[l]) + 1 // +1 for newline
-	}
-	pos += cursorCol
-	return pos
-}
-
 // View renders the input field with a modern boxed design.
 func (i *Input) Render() string {
 	// Render content with cursor and highlighting

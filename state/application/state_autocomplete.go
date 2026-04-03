@@ -1,21 +1,22 @@
 package stateapplication
 
 import (
-	"embed"
 	"fmt"
 	"strings"
+
+	"github.com/julioguillermo/jgshell/scripts"
 )
 
-//go:embed autocomplete.sh
-var AutoCompleteScript embed.FS
-
 func (s *State) GetAutoComplete(line string, cursor int) []string {
-	bytes, err := StatusScript.ReadFile("status.sh")
+	bytes, err := scripts.AutoCompleteScript.ReadFile("autocomplete/autocomplete.sh")
 	if err != nil {
 		return []string{}
 	}
 
+	shellType := s.GetStatus().Shell()
+
 	script := string(bytes)
+	script = strings.ReplaceAll(script, "%{GO_SHELL}", shellType)
 	script = strings.ReplaceAll(script, "%{GO_LINE}", line)
 	script = strings.ReplaceAll(script, "%{GO_CURSOR}", fmt.Sprint(cursor))
 

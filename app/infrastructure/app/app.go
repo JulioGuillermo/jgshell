@@ -4,6 +4,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/julioguillermo/jgshell/app/infrastructure/components/cmdcard"
 	"github.com/julioguillermo/jgshell/app/infrastructure/components/input"
+	"github.com/julioguillermo/jgshell/app/infrastructure/components/menu"
 	statedomain "github.com/julioguillermo/jgshell/state/domain"
 	syntaxdomain "github.com/julioguillermo/jgshell/syntax/domain"
 )
@@ -19,7 +20,9 @@ type App struct {
 	width  int
 	height int
 
-	input *input.Input
+	input            *input.Input
+	autocomplete     *menu.Autocomplete
+	showAutocomplete bool
 }
 
 func NewApp(state statedomain.State, highlighter syntaxdomain.Highlighter) *App {
@@ -32,6 +35,7 @@ func NewApp(state statedomain.State, highlighter syntaxdomain.Highlighter) *App 
 		statusDepricated: true,
 	}
 	a.input = input.New(state, a.onSend, highlighter)
+	a.autocomplete = menu.NewAutocomplete()
 	return a
 }
 

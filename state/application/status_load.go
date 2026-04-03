@@ -1,16 +1,13 @@
 package stateapplication
 
 import (
-	"embed"
 	"fmt"
 	"regexp"
 	"strings"
 
+	"github.com/julioguillermo/jgshell/scripts"
 	statedomain "github.com/julioguillermo/jgshell/state/domain"
 )
-
-//go:embed status.sh
-var StatusScript embed.FS
 
 var (
 	reOS   = regexp.MustCompile(`(?m)OS: \((?P<os>.*)\)`)
@@ -19,7 +16,9 @@ var (
 )
 
 func (s *Status) Load(cmd statedomain.FastCmd) {
-	script, err := StatusScript.ReadFile("status.sh")
+	s.shell = cmd.GetShell()
+
+	script, err := scripts.StatusScript.ReadFile("status/status.sh")
 	if err != nil {
 		return
 	}

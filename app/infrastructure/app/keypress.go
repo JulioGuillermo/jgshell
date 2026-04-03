@@ -15,6 +15,13 @@ func (a *App) HandleKeyPress(msg tea.KeyMsg) tea.Cmd {
 
 	if a.state.IsRunning() {
 		a.sendKey(msg)
+		return nil
+	}
+
+	switch keys {
+	case "tab":
+		a.autocomplete.SetItems(a.state.GetAutoComplete(a.input.GetCurrentLine(), a.input.GetCurrentLinePosition()))
+		a.showAutocomplete = true
 	}
 
 	return nil

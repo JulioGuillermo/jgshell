@@ -14,8 +14,11 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		a.statusDepricated = false
 	}
 
-	if _, c := a.input.Update(msg); c != nil {
-		cmds = append(cmds, c)
+	if !a.state.IsRunning() {
+		_, c := a.input.Update(msg)
+		if c != nil {
+			cmds = append(cmds, c)
+		}
 	}
 
 	switch msg := msg.(type) {
@@ -39,9 +42,17 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			state := statusbar.StatusBar(a.status, a.width)
 			height -= lipgloss.Height(state)
 		}
+		if a.showAutocomplete {
+			autocomplete := a.autocomplete.View(a.width, a.height)
+			height -= lipgloss.Height(autocomplete)
+		}
 
 		a.cmdViewPort.Resize(a.width, height)
 		a.state.SetSize(a.width-2, height)
+	}
+
+	if _, c := a.autocomplete.Update(msg, a.width); c != nil {
+		cmds = append(cmds, c)
 	}
 
 	if _, ok := msg.(tea.WindowSizeMsg); !ok {
