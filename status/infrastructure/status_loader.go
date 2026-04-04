@@ -2,7 +2,6 @@ package statusinfrastructure
 
 import (
 	executordomain "github.com/julioguillermo/jgshell/executor/domain"
-	"github.com/julioguillermo/jgshell/scripts"
 	shelldetectordomain "github.com/julioguillermo/jgshell/shelldetector/domain"
 	statusdomain "github.com/julioguillermo/jgshell/status/domain"
 )
@@ -44,20 +43,4 @@ func (s *StatusLoader) Load() (*statusdomain.Status, error) {
 	s.parseGit(result, output)
 
 	return result, nil
-}
-
-func (s *StatusLoader) getScript(sh string) (string, error) {
-	if sh == "powershell" {
-		script, err := scripts.StatusScript.ReadFile("status/status.ps1")
-		if err != nil {
-			return "", err
-		}
-		return string(script), nil
-	}
-
-	script, err := scripts.StatusScript.ReadFile("status/status.sh")
-	if err != nil {
-		return "", err
-	}
-	return string(script), nil
 }
