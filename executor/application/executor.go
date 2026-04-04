@@ -43,6 +43,24 @@ func (e *Executor) IsRunning() bool {
 	return e.isRunning
 }
 
+func (e *Executor) StopWith(code int, msg string) {
+	defer e.cond.Signal()
+	e.isRunning = false
+	if e.cmd == nil || !e.cmd.IsRunning() {
+		return
+	}
+
+	end := time.Now()
+	e.cmd.End = &end
+	e.cmd.ExitCode = code
+	e.cmd.Output += "\n" + msg
+	e.cmd = nil
+}
+
+func (e *Executor) Stop() {
+	e.StopWith(-11, "Stopped here")
+}
+
 func (e *Executor) Run(command string) (*executordomain.Cmd, error) {
 	if e.isRunning {
 		_, err := e.shell.Write([]byte(command))
@@ -99,13 +117,20 @@ func (e *Executor) startReader() {
 }
 
 func (e *Executor) preCond(string) bool {
-	for !e.isRunning {
+	for !e.isRunning && e.cmd != nil {
 		e.cond.Wait()
+	}
+	if e.cmd == nil {
+		return true
 	}
 	return false
 }
 
 func (e *Executor) processOutput(output string) (string, bool) {
+	if e.cmd == nil {
+		return output, true
+	}
+
 	result := e.wrapper.UnwrapCmd(output, e.cmd.Started)
 
 	e.cmd.Output = result.Output

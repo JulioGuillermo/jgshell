@@ -27,6 +27,18 @@ func getStatusCode(code int, duration time.Duration) string {
 			Foreground(lipgloss.Color("#ffff55")).
 			Render(spinner(duration))
 	}
+	if code == -11 {
+		return lipgloss.NewStyle().
+			Blink(true).
+			Foreground(lipgloss.Color("#ffAA55")).
+			Render("")
+	}
+	if code == -12 {
+		return lipgloss.NewStyle().
+			Blink(true).
+			Foreground(lipgloss.Color("#ff00ff")).
+			Render("")
+	}
 	if code == 0 {
 		return lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#00ff55")).

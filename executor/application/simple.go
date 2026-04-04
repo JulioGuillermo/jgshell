@@ -27,8 +27,8 @@ func NewSimpleExecutor(shell shelldomain.Shell, locker sync.Locker, uuidGenerato
 }
 
 func (s *SimpleExecutor) Run(command string) (string, error) {
-	s.locker.Lock()
-	defer s.locker.Unlock()
+	// s.locker.Lock()
+	// defer s.locker.Unlock()
 
 	uuid := s.uuidGenerator.Generate()
 

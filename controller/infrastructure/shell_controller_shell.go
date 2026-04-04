@@ -11,6 +11,7 @@ func (ctl *ShellController) WrapShell() error {
 	if ctl.shellWrapper == nil {
 		return errors.New("Fail to wrap uninitialized shell")
 	}
+	ctl.shellExecutor.StopWith(-12, "Stop and wrap shell")
 	return ctl.shellWrapper.WrapShell()
 }
 

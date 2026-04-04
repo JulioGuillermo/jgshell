@@ -9,6 +9,11 @@ func (a *App) HandleKeyPress(msg tea.KeyMsg) tea.Cmd {
 	switch keys {
 	case "alt+shift+e", "ctrl+e":
 		return tea.Quit
+	case "alt+shift+w", "ctrl+shift+w":
+		if a.ctl.IsRunning() {
+			a.ctl.WrapShell()
+			return nil
+		}
 	}
 
 	if a.ctl.IsRunning() {
