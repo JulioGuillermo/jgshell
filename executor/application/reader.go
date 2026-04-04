@@ -28,7 +28,9 @@ func (r *Reader) ReadPrecond(locker sync.Locker, pre func(string) bool, post fun
 			return true
 		}
 
+		locker.Unlock()
 		n, err = r.shell.Read(buf)
+		locker.Lock()
 		if err != nil {
 			return true
 		}

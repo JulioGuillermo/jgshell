@@ -44,17 +44,18 @@ func (e *Executor) IsRunning() bool {
 }
 
 func (e *Executor) StopWith(code int, msg string) {
-	defer e.cond.Signal()
+	// defer e.cond.Signal()
 	e.isRunning = false
+
 	if e.cmd == nil || !e.cmd.IsRunning() {
 		return
 	}
 
+	// fmt.Fprintf(e.shell, `printf "%s"\n`, msg)
 	end := time.Now()
 	e.cmd.End = &end
 	e.cmd.ExitCode = code
 	e.cmd.Output += "\n" + msg
-	e.cmd = nil
 }
 
 func (e *Executor) Stop() {
@@ -117,17 +118,14 @@ func (e *Executor) startReader() {
 }
 
 func (e *Executor) preCond(string) bool {
-	for !e.isRunning && e.cmd != nil {
+	for !e.isRunning {
 		e.cond.Wait()
-	}
-	if e.cmd == nil {
-		return true
 	}
 	return false
 }
 
 func (e *Executor) processOutput(output string) (string, bool) {
-	if e.cmd == nil {
+	if !e.isRunning || e.cmd == nil {
 		return output, true
 	}
 

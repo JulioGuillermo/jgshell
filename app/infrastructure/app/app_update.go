@@ -9,10 +9,7 @@ import (
 func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
-	if !a.ctl.IsRunning() && (a.statusDepricated || a.status == nil) {
-		a.status, _ = a.ctl.GetStatus()
-		a.statusDepricated = false
-	}
+	a.UpdateStatus()
 
 	if !a.ctl.IsRunning() && !a.showAutocomplete {
 		_, c := a.input.Update(msg)
@@ -67,4 +64,11 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return a, tea.Batch(cmds...)
+}
+
+func (a *App) UpdateStatus() {
+	if !a.ctl.IsRunning() && (a.statusDepricated || a.status == nil) {
+		a.statusDepricated = false
+		a.status, _ = a.ctl.GetStatus()
+	}
 }
