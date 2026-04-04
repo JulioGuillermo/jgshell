@@ -11,12 +11,12 @@ type State struct {
 	mu   *sync.Mutex
 	cond *sync.Cond
 
-	shell     shelldomain.Shell
+	shell     shelldomain.FullShell
 	history   []statedomain.Cmd
 	isRunning bool
 }
 
-func NewState(shell shelldomain.Shell) *State {
+func NewState(shell shelldomain.FullShell) *State {
 	mu := &sync.Mutex{}
 	cond := sync.NewCond(mu)
 	state := &State{
@@ -35,7 +35,7 @@ func (s *State) Close() error {
 }
 
 func (s *State) OnClose(f func(s statedomain.State)) {
-	s.shell.OnClose(func(shelldomain.Shell) {
+	s.shell.OnClose(func(shelldomain.FullShell) {
 		f(s)
 	})
 }

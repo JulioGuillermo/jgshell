@@ -1,33 +1,12 @@
+#!/usr/bin/env pwsh
 # Markers:
 #   START: \x1b]123;START\x07<user> <pwd> >>>
 #   END:   \x1b]123;<exit_code>;<uuid>;DONE\x07
 
-# Función para emitir START
-function global:_JgEmitStartMarker {
-    $user = [System.Environment]::UserName
-    $pwd = (Get-Location).Path
-    Write-Host "`e]123;START`a$user $pwd >>>"
+if (Get-Command Stop-OhMyPosh -ErrorAction SilentlyContinue) { Stop-OhMyPosh }
+$global:PromptPurge = $true
+
+function global:prompt {
+    $exitCode = if ($null -eq $LASTEXITCODE) { [int][bool]$? } else { $LASTEXITCODE }
+    return "\033]123;$exitCode;DONE\007"
 }
-
-# Función para emitir END
-function global:_JgEmitEndMarker {
-    $exitCode = $LASTEXITCODE
-    if ($null -eq $env:JG_BLOCK_UUID) { $env:JG_BLOCK_UUID = "unknown" }
-    Write-Host "`e]123;$exitCode;$env:JG_BLOCK_UUID;DONE`a"
-}
-
-# Configurar prompt para emitir END después de cada comando
-# Sobrescribir la función prompt si existe, sino crear una nueva
-if (Test-Path function:prompt) {
-    $origPrompt = (Get-Command prompt).Definition
-} else {
-    $origPrompt = '"PS $($executionContext.SessionState.Path.CurrentLocation)> "'
-}
-
-$function:prompt = @"
-    _JgEmitEndMarker
-    $origPrompt
-"@
-
-# Configurar PSCommandPrompt para START (no hay equivalente a trap DEBUG en PS)
-# El START se emite manualmente antes de cada comando enviado por jgshell

@@ -1,20 +1,8 @@
 # Markers:
 #   START: \x1b]123;START\x07<user> <pwd> >>>
 #   END:   \x1b]123;<exit_code>;<uuid>;DONE\x07
-#
-# Nota: nushell no tiene hooks equivalentes a trap DEBUG o preexec
-# El START debe emitirse manualmente antes de cada comando
 
-# Configurar prompt para emitir END
-# En nushell, el prompt se configura en config.nu
-# Este wrapper asume que se sourcea antes de ejecutar comandos
-
-# Función helper para emitir END (se llama desde el prompt)
 def --env _jg_emit_end_marker [] {
     let exit_code = ($env.LAST_EXIT_CODE | default 0)
-    let uuid = ($env.JG_BLOCK_UUID | default "unknown")
-    $"\e]123;($exit_code);($uuid);DONE\a"
+    printf "\e]123;($exit_code);DONE\a>>A"
 }
-
-# El START se emite manualmente desde jgshell antes de cada comando
-# porque nushell no tiene un hook pre-exec

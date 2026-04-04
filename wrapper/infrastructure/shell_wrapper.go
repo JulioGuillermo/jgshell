@@ -1,12 +1,49 @@
-package stateapplication
+package application
 
 import (
 	"fmt"
 
 	"github.com/julioguillermo/jgshell/scripts"
+	shelldomain "github.com/julioguillermo/jgshell/shell/domain"
+	shelldetectordomain "github.com/julioguillermo/jgshell/shelldetector/domain"
 )
 
-func getWrapper(sh string) (string, bool) {
+type ShellWrapper struct {
+	shell         shelldomain.Shell
+	shellDetector shelldetectordomain.ShellDetector
+}
+
+func NewShellWrapper(shell shelldomain.Shell, shellDetector shelldetectordomain.ShellDetector) *ShellWrapper {
+	return &ShellWrapper{
+		shell:         shell,
+		shellDetector: shellDetector,
+	}
+}
+
+func (s *ShellWrapper) WrapShell() error {
+	sh, err := s.shellDetector.DetectShell()
+	if err != nil {
+		return err
+	}
+
+	script, source := s.getWrapper(sh)
+	if script == "" {
+		return fmt.Errorf("Not wrapper script for shell: %s", sh)
+	}
+
+	if !source {
+		s.shell.Write([]byte(script))
+		return nil
+	}
+
+	if sh == "powershell" {
+		return s.pwshWrap(script)
+	}
+
+	return s.shWrap(script)
+}
+
+func (s *ShellWrapper) getWrapper(sh string) (string, bool) {
 	var err error
 	var bytes []byte
 	var source bool
@@ -35,7 +72,7 @@ func getWrapper(sh string) (string, bool) {
 	return string(bytes), source
 }
 
-func (s *State) pwshWrap(script string) error {
+func (s *ShellWrapper) pwshWrap(script string) error {
 	_, err := fmt.Fprintf(
 		s.shell,
 		`$setupScript = @'
@@ -51,7 +88,7 @@ Write-Output "Wrapper script executed successfully"
 	return err
 }
 
-func (s *State) shFileWrap(script string) error {
+func (s *ShellWrapper) shFileWrap(script string) error {
 	_, err := fmt.Fprintf(
 		s.shell,
 		`cat << 'EOF' > .wrapper
@@ -68,7 +105,7 @@ printf "Wrapper script executed successfully"
 	return err
 }
 
-func (s *State) shWrap(script string) error {
+func (s *ShellWrapper) shWrap(script string) error {
 	_, err := fmt.Fprintf(
 		s.shell,
 		`eval "$(cat << 'EOF'
@@ -80,25 +117,4 @@ printf "Wrapper script executed successfully\n"
 		script,
 	)
 	return err
-}
-
-func (s *State) Wrap() error {
-	sh := s.GetShell()
-	script, source := getWrapper(sh)
-	if script == "" {
-		return fmt.Errorf("Not wrapper script for shell: %s", sh)
-	}
-
-	defer s.Clear()
-
-	if !source {
-		s.shell.Write([]byte(script))
-		return nil
-	}
-
-	if sh == "powershell" {
-		return s.pwshWrap(script)
-	}
-
-	return s.shWrap(script)
 }

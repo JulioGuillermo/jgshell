@@ -18,7 +18,7 @@ type ShellConnector struct {
 	ptyFile *os.File
 }
 
-func NewShellConnector(cmd string) (shelldomain.Shell, error) {
+func NewShellConnector(cmd string) (shelldomain.FullShell, error) {
 	sh := &ShellConnector{}
 	if err := sh.start(cmd); err != nil {
 		return nil, err
@@ -114,7 +114,7 @@ func (s *ShellConnector) Close() error {
 	return nil
 }
 
-func (s *ShellConnector) OnClose(f func(shelldomain.Shell)) {
+func (s *ShellConnector) OnClose(f func(shelldomain.FullShell)) {
 	go func() {
 		s.cmd.Wait()
 		f(s)
