@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	wrapperdomain "github.com/julioguillermo/jgshell/wrapper/domain"
@@ -29,7 +30,7 @@ func NewCmdWrapper() *CmdWrapper {
 }
 
 func (w *CmdWrapper) WrapCmd(command string) string {
-	return fmt.Sprintf("printf \"\\033]123;START;%%s;%%s;>>>\\007\" \"$(whoami)\" \"$(pwd)\" ; { %s ; }\n", command)
+	return fmt.Sprintf("printf \"\\033]123;START;%%s;%%s;>>>\\007\" \"$(whoami)\" \"$(pwd)\" ; {\n%s\n}\n", strings.TrimSpace(command))
 }
 
 func (w *CmdWrapper) UnwrapCmd(output string, started bool) *wrapperdomain.CmdUnwrapResult {

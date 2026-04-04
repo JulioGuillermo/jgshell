@@ -46,7 +46,7 @@ func (e *FastExecutor) Run(command string) (string, int, error) {
 		return result.Output, !result.IsRunning
 	})
 
-	return strings.TrimSpace(output), code, nil
+	return strings.TrimSpace(output), code, err
 }
 
 func (e *FastExecutor) RunAndClean(command string) (string, int, error) {

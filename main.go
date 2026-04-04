@@ -40,6 +40,7 @@ func main() {
 		fmt.Printf("Fail to wrap shell: %v", err)
 		os.Exit(1)
 	}
+	ctl.GetStatus()
 
 	hl, err := syntaxinfrastructure.NewTSHighlighter()
 	if err != nil {
