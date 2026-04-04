@@ -16,18 +16,18 @@ var (
 				Foreground(lipgloss.Color("#ff0088"))
 )
 
-type itemDelegate struct {
+type SimpleItemDelegate struct {
 }
 
-func (d itemDelegate) Height() int                             { return 1 }
-func (d itemDelegate) Spacing() int                            { return 0 }
-func (d itemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
+func (d SimpleItemDelegate) Height() int                             { return 1 }
+func (d SimpleItemDelegate) Spacing() int                            { return 0 }
+func (d SimpleItemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
 
-func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+func (d SimpleItemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
 	total := len(m.Items())
 	total = len(fmt.Sprint(total))
 
-	i, ok := listItem.(Item)
+	i, ok := listItem.(SimpleItem)
 	if !ok {
 		return
 	}

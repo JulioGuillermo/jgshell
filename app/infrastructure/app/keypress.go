@@ -22,6 +22,11 @@ func (a *App) HandleKeyPress(msg tea.KeyMsg) tea.Cmd {
 	}
 
 	switch keys {
+	case "ctrl+r":
+		value := a.input.Value()
+		items := a.ctl.Filter(value)
+		a.history.SetItems(items)
+		a.showHistory = true
 	case "tab":
 		if !a.showAutocomplete {
 			line := a.input.GetCurrentLine()

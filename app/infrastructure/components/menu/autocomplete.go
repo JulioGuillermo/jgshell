@@ -12,14 +12,14 @@ import (
 
 type Autocomplete struct {
 	list     list.Model
-	items    []Item
+	items    []SimpleItem
 	OnSelect func(string)
 	OnClose  func()
 }
 
 func NewAutocomplete() *Autocomplete {
-	l := list.New([]list.Item{}, itemDelegate{}, 20, 10)
-	// l.Title = "What do you want for dinner?"
+	l := list.New([]list.Item{}, SimpleItemDelegate{}, 20, 10)
+	l.Title = "Autocomplete"
 	l.SetFilteringEnabled(true)
 	// l.SetFilteringEnabled(false)
 	l.SetShowFilter(true)
@@ -37,9 +37,9 @@ func NewAutocomplete() *Autocomplete {
 
 func (a *Autocomplete) SetItems(items []string) {
 	slices.Sort(items)
-	a.items = make([]Item, len(items))
+	a.items = make([]SimpleItem, len(items))
 	for i, item := range items {
-		a.items[i] = Item(item)
+		a.items[i] = SimpleItem(item)
 	}
 	listItems := make([]list.Item, len(a.items))
 	for i, item := range a.items {
@@ -53,7 +53,7 @@ func (a *Autocomplete) Init() tea.Cmd {
 	return nil
 }
 
-func (a *Autocomplete) Update(msg tea.Msg, width int) (*Autocomplete, tea.Cmd) {
+func (a *Autocomplete) Update(msg tea.Msg, width, height int) (*Autocomplete, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		a.OnKey(msg.String())
@@ -62,6 +62,7 @@ func (a *Autocomplete) Update(msg tea.Msg, width int) (*Autocomplete, tea.Cmd) {
 	l, c := a.list.Update(msg)
 	a.list = l
 	a.list.SetWidth(width)
+	a.list.SetHeight(max(min(height-6, 10), 3))
 
 	return a, c
 }

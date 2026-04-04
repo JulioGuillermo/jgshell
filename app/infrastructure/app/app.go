@@ -24,6 +24,8 @@ type App struct {
 	input            *input.Input
 	autocomplete     *menu.Autocomplete
 	showAutocomplete bool
+	history          *menu.History
+	showHistory      bool
 }
 
 func NewApp(ctl controllerdomain.ShellController, highlighter syntaxdomain.Highlighter) *App {
@@ -35,7 +37,9 @@ func NewApp(ctl controllerdomain.ShellController, highlighter syntaxdomain.Highl
 		height:           24,
 		statusDepricated: true,
 	}
+
 	a.input = input.New(ctl, a.onSend, highlighter)
+
 	a.autocomplete = menu.NewAutocomplete()
 	a.autocomplete.OnClose = func() {
 		a.showAutocomplete = false
@@ -43,6 +47,15 @@ func NewApp(ctl controllerdomain.ShellController, highlighter syntaxdomain.Highl
 	a.autocomplete.OnSelect = func(item string) {
 		a.input.InsertAutocomplete(item)
 	}
+
+	a.history = menu.NewHistory()
+	a.history.OnClose = func() {
+		a.showHistory = false
+	}
+	a.history.OnSelect = func(item string) {
+		a.input.SetValue(item)
+	}
+
 	return a
 }
 
