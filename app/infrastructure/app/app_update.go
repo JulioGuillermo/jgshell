@@ -58,7 +58,7 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	a.cmdViewPort.Resize(a.width, height)
-	a.ctl.SetSize(a.width-2, height)
+	a.ctl.SetSize(a.width-2, height-2)
 
 	if _, ok := msg.(tea.WindowSizeMsg); !ok {
 		v, cmd := a.cmdViewPort.Update(a.ctl.GetHistory(), a.width, msg)
