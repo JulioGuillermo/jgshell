@@ -1,4 +1,18 @@
-# jgshell
+<p align="center">
+  <img src="./JGShell_transparent_mini.png" alt="jgshell logo" width="40%" />
+</p>
+
+<h1 align="center">
+  JGShell
+</h1>
+
+<p align="center">
+  <strong>Modern TUI shell wrapper built in Go</strong>
+</p>
+
+<p align="center">
+  <img src="./animated.gif" alt="jgshell animated demo" width="960" />
+</p>
 
 `jgshell` is a Go-based TUI shell wrapper that runs your real shell inside a PTY and layers a structured interface on top of it. Instead of a plain prompt, it gives you a command timeline, syntax-highlighted input, completion and history pickers, persistent command history, and a live status bar with shell, directory, OS, and Git information.
 

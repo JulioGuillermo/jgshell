@@ -12,7 +12,7 @@ func (i *Input) Position() int {
 	// Let's calculate it from the value and cursor position
 	val := i.textarea.Value()
 	cursorLine := i.textarea.Line()
-	cursorCol := i.textarea.LineInfo().CharOffset
+	cursorCol := i.GetCurrentLinePosition()
 
 	lines := strings.Split(val, "\n")
 	pos := 0
@@ -31,7 +31,8 @@ func (i *Input) GetCurrentLine() string {
 }
 
 func (i *Input) GetCurrentLinePosition() int {
-	return i.textarea.LineInfo().CharOffset
+	lineInfo := i.textarea.LineInfo()
+	return lineInfo.StartColumn + lineInfo.CharOffset
 }
 
 func (i *Input) InsertAutocomplete(text string) {
@@ -40,7 +41,7 @@ func (i *Input) InsertAutocomplete(text string) {
 	lines := strings.Split(val, "\n")
 	line := lines[cursorLine]
 
-	start := i.textarea.LineInfo().CharOffset
+	start := i.GetCurrentLinePosition()
 	end := start
 	for start-1 >= 0 && start-1 < len(line) && tools.IsAlphaNumeric(line[start-1]) {
 		start--

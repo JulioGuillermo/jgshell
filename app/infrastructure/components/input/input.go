@@ -80,6 +80,8 @@ func (i *Input) Update(msg tea.Msg) (*Input, tea.Cmd) {
 			if i.Position() >= len(i.Value()) {
 				i.ApplySuggestion()
 			}
+		case "ctrl+c":
+			i.textarea.SetValue("")
 		}
 	}
 

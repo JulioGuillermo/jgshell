@@ -2,6 +2,7 @@ package menu
 
 import (
 	"slices"
+	"strings"
 
 	"charm.land/bubbles/v2/list"
 	"charm.land/bubbles/v2/paginator"
@@ -96,9 +97,10 @@ func (a *Autocomplete) onSelect() {
 	if a.list.FilterValue() != "" {
 		idx = a.list.GlobalIndex()
 	}
-	selected := a.items[idx]
 	if a.OnSelect != nil {
-		a.OnSelect(string(selected))
+		selected := string(a.items[idx])
+		selected = strings.ReplaceAll(selected, " ", "\\ ")
+		a.OnSelect(selected)
 	}
 	if a.OnClose != nil {
 		a.OnClose()
