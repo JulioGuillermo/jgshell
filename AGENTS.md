@@ -2,6 +2,8 @@
 
 ## Project Overview
 
+`jgshell` is a fully free and open source project released under the MIT License.
+
 `jgshell` is a modern TUI shell wrapper built in Go. It aims to provide a rich terminal experience with syntax highlighting, interactive components, and shell-agnostic features (supporting bash, zsh, etc.).
 
 ## Technical Stack
