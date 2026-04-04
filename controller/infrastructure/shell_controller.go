@@ -7,6 +7,8 @@ import (
 	autocompleteinfrastructure "github.com/julioguillermo/jgshell/autocomplete/infrastructure"
 	executorapplication "github.com/julioguillermo/jgshell/executor/application"
 	executordomain "github.com/julioguillermo/jgshell/executor/domain"
+	persistencedomain "github.com/julioguillermo/jgshell/persistence/domain"
+	persistenceinfrastructure "github.com/julioguillermo/jgshell/persistence/infrastructure"
 	shelldomain "github.com/julioguillermo/jgshell/shell/domain"
 	shellinfrastructure "github.com/julioguillermo/jgshell/shell/infrastructure"
 	shelldetectorapplication "github.com/julioguillermo/jgshell/shelldetector/application"
@@ -27,7 +29,8 @@ type ShellController struct {
 	uuidGenerator  toolsdomain.UUIDGenerator
 	outputCleanner toolsdomain.OutputCleaner
 
-	history executordomain.History
+	persistencer persistencedomain.PersistenceCtl
+	history      executordomain.History
 
 	shell               shelldomain.FullShell
 	shellDetector       shelldetectordomain.ShellDetector
@@ -42,14 +45,20 @@ type ShellController struct {
 }
 
 func NewShellController(cmd string) (*ShellController, error) {
+	persistenceCtl, err := persistenceinfrastructure.NewPersistenceCtl()
+	if err != nil {
+		return nil, err
+	}
+
 	ctl := &ShellController{
 		locker:         &sync.Mutex{},
 		uuidGenerator:  toolsinfrastructure.NewUUIDGenerator(),
 		outputCleanner: toolsapplication.NewOutputCleaner(),
 		history:        executorapplication.NewHistory(),
+		persistencer:   persistenceCtl,
 	}
 
-	err := ctl.initShell(cmd)
+	err = ctl.initShell(cmd)
 	if err != nil {
 		return nil, err
 	}

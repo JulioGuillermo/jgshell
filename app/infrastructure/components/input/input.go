@@ -95,7 +95,24 @@ func (i *Input) View(width, height int) string {
 		BorderLeft(true).
 		BorderRight(true).
 		BorderBottom(true).
-		Render(i.Render())
+		Render(i.Render(i.GetSuggestion()))
+}
+
+func (i *Input) GetSuggestion() string {
+	value := i.textarea.Value()
+	if value == "" {
+		return ""
+	}
+	suggestion := i.ctl.FilterLast(value)
+	if suggestion == "" {
+		return ""
+	}
+
+	suggestion = strings.TrimPrefix(suggestion, value)
+	suggestion = lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#555555")).
+		Render(suggestion)
+	return suggestion
 }
 
 func (i *Input) Value() string {

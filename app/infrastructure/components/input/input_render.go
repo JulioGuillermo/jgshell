@@ -8,11 +8,11 @@ import (
 )
 
 // View renders the input field with a modern boxed design.
-func (i *Input) Render() string {
+func (i *Input) Render(suggestion string) string {
 	// Render content with cursor and highlighting
 	var inputContent string
 
-	highlighted := i.highlighter.Highlight(i.textarea.Value())
+	highlighted := i.highlighter.Highlight(i.textarea.Value()) + suggestion
 
 	if i.showCursor {
 		pos := i.Position()
@@ -32,6 +32,7 @@ func (i *Input) renderWithCursor(highlighted string, pos int) string {
 	var charCount int
 	var inAnsi bool
 	var cursorInserted bool
+	var lastAnsi string
 
 	// Special case: cursor at the end
 	textLen := utf8.RuneCountInString(i.textarea.Value())
@@ -41,6 +42,7 @@ func (i *Input) renderWithCursor(highlighted string, pos int) string {
 		// Track ANSI escape sequences
 		if r == '\x1b' {
 			inAnsi = true
+			lastAnsi = ""
 		}
 
 		if !inAnsi {
@@ -49,11 +51,14 @@ func (i *Input) renderWithCursor(highlighted string, pos int) string {
 				// Since we are in a highlighted string, we might want to keep the color
 				// but change the background.
 				out.WriteString(cursorStyle.Render(string(r)))
+				out.WriteString(lastAnsi)
 				cursorInserted = true
 				charCount++
 				continue
 			}
 			charCount++
+		} else {
+			lastAnsi += string(r)
 		}
 
 		out.WriteRune(r)

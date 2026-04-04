@@ -21,4 +21,7 @@ type ShellController interface {
 	// Features
 	GetStatus() (*statusdomain.Status, error)
 	GetAutocomplete(line string, cursor int) ([]string, error)
+	GetCmdHistory() []string
+	Filter(start string) []string
+	FilterLast(start string) string
 }

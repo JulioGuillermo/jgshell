@@ -23,6 +23,10 @@ func (ctl *ShellController) Run(command string) error {
 	}
 	if cmd != nil {
 		ctl.history.PushCmd(cmd)
+		err = ctl.persistencer.Push(cmd.Cmd)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
