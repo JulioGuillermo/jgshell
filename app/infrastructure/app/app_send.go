@@ -7,14 +7,14 @@ import (
 )
 
 func (a *App) sendPaste(msg tea.PasteMsg) {
-	if !a.state.IsRunning() {
+	if !a.ctl.IsRunning() {
 		return
 	}
-	a.state.Send(msg.Content)
+	a.ctl.Run(msg.Content)
 }
 
 func (a *App) sendKey(msg tea.KeyMsg) {
-	if !a.state.IsRunning() {
+	if !a.ctl.IsRunning() {
 		return
 	}
 
@@ -24,35 +24,35 @@ func (a *App) sendKey(msg tea.KeyMsg) {
 	switch keyStr {
 	// Always allow Ctrl+C to send SIGINT
 	case "ctrl+c":
-		a.state.Send("\x03")
+		a.ctl.Run("\x03")
 	case "enter":
-		a.state.Send("\r")
+		a.ctl.Run("\r")
 	case "backspace":
-		a.state.Send("\x7f")
+		a.ctl.Run("\x7f")
 	case "tab":
-		a.state.Send("\t")
+		a.ctl.Run("\t")
 	case "esc":
-		a.state.Send("\x1b")
+		a.ctl.Run("\x1b")
 	case "up":
-		a.state.Send("\x1b[A")
+		a.ctl.Run("\x1b[A")
 	case "down":
-		a.state.Send("\x1b[B")
+		a.ctl.Run("\x1b[B")
 	case "right":
-		a.state.Send("\x1b[C")
+		a.ctl.Run("\x1b[C")
 	case "left":
-		a.state.Send("\x1b[D")
+		a.ctl.Run("\x1b[D")
 	case "space":
-		a.state.Send(" ")
+		a.ctl.Run(" ")
 	default:
 		if strings.HasPrefix(keyStr, "ctrl+") && len(keyStr) == 6 {
 			// Handle ctrl+a through ctrl+z
 			char := keyStr[5]
 			if char >= 'a' && char <= 'z' {
-				a.state.Write([]byte{char - 'a' + 1})
+				a.ctl.Run(string(char - 'a' + 1))
 			}
 		} else {
 			// For normal characters and other Ctrl keys
-			a.state.Send(string([]rune(msg.Key().Text)))
+			a.ctl.Run(string([]rune(msg.Key().Text)))
 		}
 	}
 }

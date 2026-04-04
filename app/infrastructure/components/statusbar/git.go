@@ -5,12 +5,12 @@ import (
 	"strings"
 
 	"charm.land/lipgloss/v2"
-	statedomain "github.com/julioguillermo/jgshell/state/domain"
+	statusdomain "github.com/julioguillermo/jgshell/status/domain"
 )
 
-func GetGit(status statedomain.Status) string {
+func GetGit(status *statusdomain.Status) string {
 	//                            
-	git := status.Git()
+	git := status.Git
 	if git == nil {
 		return ""
 	}

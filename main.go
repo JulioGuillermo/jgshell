@@ -6,9 +6,8 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/julioguillermo/jgshell/app/infrastructure/app"
-	shellinfrastructure "github.com/julioguillermo/jgshell/shell/infrastructure"
-	stateapplication "github.com/julioguillermo/jgshell/state/application"
-	statedomain "github.com/julioguillermo/jgshell/state/domain"
+	controllerdomain "github.com/julioguillermo/jgshell/controller/domain"
+	controllerinfrastructure "github.com/julioguillermo/jgshell/controller/infrastructure"
 	syntaxinfrastructure "github.com/julioguillermo/jgshell/syntax/infrastruct"
 )
 
@@ -29,25 +28,28 @@ func main() {
 		cmd = "bash"
 	}
 
-	shell, err := shellinfrastructure.NewShellConnector(cmd)
+	ctl, err := controllerinfrastructure.NewShellController(cmd)
 	if err != nil {
-		fmt.Printf("Fail to start shell: %v", err)
+		fmt.Printf("Fail to create controller: %v", err)
 		os.Exit(1)
 	}
-	defer shell.Close()
-	shell.SetSize(24, 80)
-
-	state := stateapplication.NewState(shell)
+	defer ctl.Close()
+	ctl.SetSize(24, 80)
+	err = ctl.WrapShell()
+	if err != nil {
+		fmt.Printf("Fail to wrap shell: %v", err)
+		os.Exit(1)
+	}
 
 	hl, err := syntaxinfrastructure.NewTSHighlighter()
 	if err != nil {
 		fmt.Printf("Fail to create highlighter: %v", err)
 		os.Exit(1)
 	}
-	app := app.NewApp(state, hl)
+	app := app.NewApp(ctl, hl)
 
 	p := tea.NewProgram(app)
-	state.OnClose(func(s statedomain.State) {
+	ctl.OnClose(func(sc controllerdomain.ShellController) {
 		p.Quit()
 	})
 	if _, err := p.Run(); err != nil {

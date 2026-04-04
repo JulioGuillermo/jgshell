@@ -123,11 +123,11 @@ func (e *Executor) processOutput(output string) (string, bool) {
 	}
 
 	if result.IsRunning {
-		return output, false
+		return result.Output, false
 	}
 
 	e.cmd.End = result.EndTime
 	e.isRunning = false
 
-	return output, true
+	return result.Output, true
 }

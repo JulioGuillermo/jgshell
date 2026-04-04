@@ -5,13 +5,14 @@ import (
 	"github.com/julioguillermo/jgshell/app/infrastructure/components/cmdcard"
 	"github.com/julioguillermo/jgshell/app/infrastructure/components/input"
 	"github.com/julioguillermo/jgshell/app/infrastructure/components/menu"
-	statedomain "github.com/julioguillermo/jgshell/state/domain"
+	controllerdomain "github.com/julioguillermo/jgshell/controller/domain"
+	statusdomain "github.com/julioguillermo/jgshell/status/domain"
 	syntaxdomain "github.com/julioguillermo/jgshell/syntax/domain"
 )
 
 type App struct {
-	state            statedomain.State
-	status           statedomain.Status
+	ctl              controllerdomain.ShellController
+	status           *statusdomain.Status
 	statusDepricated bool
 
 	cmdViewPort *cmdcard.CmdViewPort
@@ -25,16 +26,16 @@ type App struct {
 	showAutocomplete bool
 }
 
-func NewApp(state statedomain.State, highlighter syntaxdomain.Highlighter) *App {
+func NewApp(ctl controllerdomain.ShellController, highlighter syntaxdomain.Highlighter) *App {
 	a := &App{
-		state:            state,
+		ctl:              ctl,
 		cmdViewPort:      cmdcard.NewCmdViewPort(80, 24, highlighter),
 		highlighter:      highlighter,
 		width:            80,
 		height:           24,
 		statusDepricated: true,
 	}
-	a.input = input.New(state, a.onSend, highlighter)
+	a.input = input.New(ctl, a.onSend, highlighter)
 	a.autocomplete = menu.NewAutocomplete()
 	a.autocomplete.OnClose = func() {
 		a.showAutocomplete = false
@@ -53,7 +54,7 @@ func (a *App) Init() tea.Cmd {
 }
 
 func (a *App) onSend(msg string) {
-	a.state.Send(msg)
+	a.ctl.Run(msg)
 	a.cmdViewPort.GoToBottom()
 	a.statusDepricated = true
 }

@@ -11,7 +11,7 @@ func (a *App) HandleKeyPress(msg tea.KeyMsg) tea.Cmd {
 		return tea.Quit
 	}
 
-	if a.state.IsRunning() {
+	if a.ctl.IsRunning() {
 		a.sendKey(msg)
 		return nil
 	}
@@ -21,7 +21,8 @@ func (a *App) HandleKeyPress(msg tea.KeyMsg) tea.Cmd {
 		if !a.showAutocomplete {
 			line := a.input.GetCurrentLine()
 			if line != "" {
-				a.autocomplete.SetItems(a.state.GetAutoComplete(a.input.GetCurrentLine(), a.input.GetCurrentLinePosition()))
+				items, _ := a.ctl.GetAutocomplete(a.input.GetCurrentLine(), a.input.GetCurrentLinePosition())
+				a.autocomplete.SetItems(items)
 				a.showAutocomplete = true
 			}
 		}

@@ -4,13 +4,13 @@ import (
 	"strings"
 
 	"charm.land/lipgloss/v2"
-	statedomain "github.com/julioguillermo/jgshell/state/domain"
+	statusdomain "github.com/julioguillermo/jgshell/status/domain"
 )
 
-func StatusBar(status statedomain.Status, width int) string {
-	os := GetOS(status.OS())
-	shell := GetShell(status.Shell())
-	user := GetUser(status.User())
+func StatusBar(status *statusdomain.Status, width int) string {
+	os := GetOS(status.OS)
+	shell := GetShell(status.Shell)
+	user := GetUser(status.User)
 	pwd := GetPwdHome(status)
 	git := GetGit(status)
 

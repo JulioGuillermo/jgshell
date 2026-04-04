@@ -21,7 +21,9 @@ func (ctl *ShellController) Run(command string) error {
 	if err != nil {
 		return err
 	}
-	ctl.history.PushCmd(cmd)
+	if cmd != nil {
+		ctl.history.PushCmd(cmd)
+	}
 	return nil
 }
 

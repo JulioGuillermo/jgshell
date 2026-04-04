@@ -7,12 +7,12 @@ import (
 	"charm.land/bubbles/v2/textarea"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	statedomain "github.com/julioguillermo/jgshell/state/domain"
+	controllerdomain "github.com/julioguillermo/jgshell/controller/domain"
 	syntaxdomain "github.com/julioguillermo/jgshell/syntax/domain"
 )
 
 type Input struct {
-	state       statedomain.State
+	ctl         controllerdomain.ShellController
 	textarea    textarea.Model
 	onSend      func(string)
 	highlighter syntaxdomain.Highlighter
@@ -20,7 +20,7 @@ type Input struct {
 	lastInput   time.Time
 }
 
-func New(state statedomain.State, onSend func(string), highlighter syntaxdomain.Highlighter) *Input {
+func New(ctl controllerdomain.ShellController, onSend func(string), highlighter syntaxdomain.Highlighter) *Input {
 	ta := textarea.New()
 	ta.ShowLineNumbers = false
 	ta.DynamicHeight = true
@@ -34,7 +34,7 @@ func New(state statedomain.State, onSend func(string), highlighter syntaxdomain.
 	ta.SetStyles(style)
 
 	return &Input{
-		state:       state,
+		ctl:         ctl,
 		onSend:      onSend,
 		textarea:    ta,
 		highlighter: highlighter,

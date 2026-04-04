@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"charm.land/lipgloss/v2"
-	statedomain "github.com/julioguillermo/jgshell/state/domain"
+	executordomain "github.com/julioguillermo/jgshell/executor/domain"
 	syntaxdomain "github.com/julioguillermo/jgshell/syntax/domain"
 )
 
@@ -64,7 +64,7 @@ func getDuration(duration time.Duration) string {
 		Render(dur)
 }
 
-func getFancyPWD(cmd statedomain.Cmd) string {
+func getFancyPWD(cmd *executordomain.Cmd) string {
 	if cmd.USER == "" {
 		return cmd.PWD
 	}
@@ -78,7 +78,7 @@ func getFancyPWD(cmd statedomain.Cmd) string {
 	return " " + strings.TrimPrefix(cmd.PWD, prefix)
 }
 
-func getUserPWD(cmd statedomain.Cmd) string {
+func getUserPWD(cmd *executordomain.Cmd) string {
 	if cmd.USER == "" && cmd.PWD == "" {
 		return ""
 	}
@@ -91,7 +91,7 @@ func getUserPWD(cmd statedomain.Cmd) string {
 	return fmt.Sprintf("%s ➜ %s", user, pwd)
 }
 
-func getTopBorder(width int, cmd statedomain.Cmd) string {
+func getTopBorder(width int, cmd *executordomain.Cmd) string {
 	duration := cmd.GetDuration()
 
 	left := getUserPWD(cmd)
@@ -112,7 +112,7 @@ func getTopBorder(width int, cmd statedomain.Cmd) string {
 		style.Render(" )╮")
 }
 
-func CmdCard(cmd statedomain.Cmd, width int, highlighter syntaxdomain.Highlighter) string {
+func CmdCard(cmd *executordomain.Cmd, width int, highlighter syntaxdomain.Highlighter) string {
 	input := highlighter.Highlight(cmd.Cmd)
 	output := cmd.CleanOuput()
 	borderTop := getTopBorder(width, cmd)

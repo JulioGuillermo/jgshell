@@ -4,7 +4,7 @@ import (
 	"charm.land/bubbles/v2/viewport"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	statedomain "github.com/julioguillermo/jgshell/state/domain"
+	executordomain "github.com/julioguillermo/jgshell/executor/domain"
 	syntaxdomain "github.com/julioguillermo/jgshell/syntax/domain"
 )
 
@@ -21,7 +21,7 @@ func NewCmdViewPort(width, height int, highlighter syntaxdomain.Highlighter) *Cm
 	}
 }
 
-func (m *CmdViewPort) Update(cmds []statedomain.Cmd, width int, msg tea.Msg) (*CmdViewPort, tea.Cmd) {
+func (m *CmdViewPort) Update(cmds []*executordomain.Cmd, width int, msg tea.Msg) (*CmdViewPort, tea.Cmd) {
 	cards := make([]string, 0, len(cmds))
 	for _, c := range cmds {
 		card := CmdCard(c, width, m.highlighter)

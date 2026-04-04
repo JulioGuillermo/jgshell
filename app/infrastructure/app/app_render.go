@@ -10,7 +10,7 @@ func (a *App) View() tea.View {
 	list := a.cmdViewPort.View()
 	elements := []string{list}
 
-	if !a.state.IsRunning() {
+	if !a.ctl.IsRunning() {
 		input := a.input.View(a.width, a.height)
 		elements = append(elements, input)
 	}

@@ -9,12 +9,12 @@ import (
 func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
-	if !a.state.IsRunning() && (a.statusDepricated || a.status == nil) {
-		a.status = a.state.GetStatus()
+	if !a.ctl.IsRunning() && (a.statusDepricated || a.status == nil) {
+		a.status, _ = a.ctl.GetStatus()
 		a.statusDepricated = false
 	}
 
-	if !a.state.IsRunning() && !a.showAutocomplete {
+	if !a.ctl.IsRunning() && !a.showAutocomplete {
 		_, c := a.input.Update(msg)
 		if c != nil {
 			cmds = append(cmds, c)
@@ -44,7 +44,7 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	height := a.height
-	if !a.state.IsRunning() {
+	if !a.ctl.IsRunning() {
 		input := a.input.View(a.width, a.height)
 		height -= lipgloss.Height(input)
 	}
@@ -58,10 +58,10 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	a.cmdViewPort.Resize(a.width, height)
-	a.state.SetSize(a.width-2, height)
+	a.ctl.SetSize(a.width-2, height)
 
 	if _, ok := msg.(tea.WindowSizeMsg); !ok {
-		v, cmd := a.cmdViewPort.Update(a.state.GetHistory(), a.width, msg)
+		v, cmd := a.cmdViewPort.Update(a.ctl.GetHistory(), a.width, msg)
 		a.cmdViewPort = v
 		cmds = append(cmds, cmd)
 	}

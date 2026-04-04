@@ -23,7 +23,7 @@ func NewCmdWrapperWithMarkers(startMarker, endMarker *regexp.Regexp) *CmdWrapper
 
 func NewCmdWrapper() *CmdWrapper {
 	return NewCmdWrapperWithMarkers(
-		regexp.MustCompile(`\033]123;START;([^\s]+);([^\s\n]+);>>>\007`),
+		regexp.MustCompile(`\033]123;START;(.+);(.+);>>>\007`),
 		regexp.MustCompile(`\033]123;(\d+);DONE\007`),
 	)
 }
