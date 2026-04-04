@@ -84,11 +84,11 @@ func (c *CmdCard) getUserPWD() string {
 		Render(c.getFancyPWD())
 	sh := ""
 	if c.Cmd.SH != "" {
-		sh = lipgloss.NewStyle().
+		sh = " [" + lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#00ffaa")).
-			Render(c.Cmd.SH) + " "
+			Render(c.Cmd.SH) + "]"
 	}
-	return fmt.Sprintf("%s[%s] ➜ %s", sh, user, pwd)
+	return fmt.Sprintf("%s%s ➜ %s", user, sh, pwd)
 }
 
 func (c *CmdCard) getFancyPWD() string {
