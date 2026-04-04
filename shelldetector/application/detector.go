@@ -1,4 +1,4 @@
-package application
+package shelldetectorapplication
 
 import (
 	"strings"
