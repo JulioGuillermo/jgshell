@@ -6,34 +6,38 @@ import (
 
 	executordomain "github.com/julioguillermo/jgshell/executor/domain"
 	shelldomain "github.com/julioguillermo/jgshell/shell/domain"
+	shelldetectordomain "github.com/julioguillermo/jgshell/shelldetector/domain"
 	toolsdomain "github.com/julioguillermo/jgshell/tools/domain"
 	wrapperdomain "github.com/julioguillermo/jgshell/wrapper/domain"
 )
 
 type Executor struct {
-	shell     shelldomain.Shell
-	reader    executordomain.Reader
-	uuid      toolsdomain.UUIDGenerator
-	wrapper   wrapperdomain.CmdWrapper
-	locker    sync.Locker
-	cond      *sync.Cond
-	isRunning bool
-	cmd       *executordomain.Cmd
+	shell         shelldomain.Shell
+	reader        executordomain.Reader
+	uuid          toolsdomain.UUIDGenerator
+	shellDetector shelldetectordomain.ShellDetector
+	wrapper       wrapperdomain.CmdWrapper
+	locker        sync.Locker
+	cond          *sync.Cond
+	isRunning     bool
+	cmd           *executordomain.Cmd
 }
 
 func NewExecutor(
 	shell shelldomain.Shell,
 	locker sync.Locker,
+	shellDetector shelldetectordomain.ShellDetector,
 	wrapper wrapperdomain.CmdWrapper,
 	uuid toolsdomain.UUIDGenerator,
 ) *Executor {
 	e := &Executor{
-		shell:   shell,
-		locker:  locker,
-		wrapper: wrapper,
-		uuid:    uuid,
-		reader:  NewReader(shell),
-		cond:    sync.NewCond(locker),
+		shell:         shell,
+		locker:        locker,
+		wrapper:       wrapper,
+		uuid:          uuid,
+		shellDetector: shellDetector,
+		reader:        NewReader(shell),
+		cond:          sync.NewCond(locker),
 	}
 	e.startReader()
 	return e
@@ -76,7 +80,9 @@ func (e *Executor) runNewCmd(command string) (*executordomain.Cmd, error) {
 	defer e.cond.Signal()
 
 	start := time.Now()
+	sh, _ := e.shellDetector.DetectShell()
 	e.cmd = &executordomain.Cmd{
+		SH:       sh,
 		UUID:     e.uuid.Generate(),
 		Cmd:      command,
 		Start:    &start,

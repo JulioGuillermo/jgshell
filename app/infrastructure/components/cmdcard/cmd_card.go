@@ -100,7 +100,13 @@ func getUserPWD(cmd *executordomain.Cmd) string {
 	pwd := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("#00ffaa")).
 		Render(getFancyPWD(cmd))
-	return fmt.Sprintf("%s ➜ %s", user, pwd)
+	sh := ""
+	if cmd.SH != "" {
+		sh = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#00ffaa")).
+			Render(cmd.SH) + " "
+	}
+	return fmt.Sprintf("%s[%s] ➜ %s", sh, user, pwd)
 }
 
 func getTopBorder(width int, cmd *executordomain.Cmd) string {

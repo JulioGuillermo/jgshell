@@ -82,7 +82,7 @@ func (ctl *ShellController) initExecutors() error {
 	ctl.shellWrapper = wrapperinfrastructure.NewShellWrapper(ctl.shell, ctl.shellDetector)
 	ctl.shellCmdWrapper = wrapperapplication.NewCmdWrapper()
 	ctl.shellFastExecutor = executorapplication.NewFastExecutor(ctl.shell, ctl.locker, ctl.shellCmdWrapper)
-	ctl.shellExecutor = executorapplication.NewExecutor(ctl.shell, ctl.locker, ctl.shellCmdWrapper, ctl.uuidGenerator)
+	ctl.shellExecutor = executorapplication.NewExecutor(ctl.shell, ctl.locker, ctl.shellDetector, ctl.shellCmdWrapper, ctl.uuidGenerator)
 
 	return nil
 }

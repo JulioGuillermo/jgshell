@@ -14,6 +14,7 @@ const (
 
 type Cmd struct {
 	UUID     string
+	SH       string
 	PWD      string
 	USER     string
 	Cmd      string
