@@ -120,6 +120,7 @@ func CmdCard(cmd *executordomain.Cmd, width int, highlighter syntaxdomain.Highli
 	return borderTop + "\n" +
 		lipgloss.NewStyle().
 			Width(width).
+			MaxWidth(width).
 			Border(lipgloss.RoundedBorder(), true).
 			BorderTop(false).
 			BorderForeground(BorderColor).
