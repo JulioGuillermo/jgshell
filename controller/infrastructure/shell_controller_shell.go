@@ -7,6 +7,13 @@ import (
 	shelldomain "github.com/julioguillermo/jgshell/shell/domain"
 )
 
+func (ctl *ShellController) GetShell() (string, error) {
+	if ctl.shellDetector == nil {
+		return "", errors.New("Shell detector not initialized")
+	}
+	return ctl.shellDetector.DetectShell()
+}
+
 func (ctl *ShellController) WrapShell() error {
 	if ctl.shellWrapper == nil {
 		return errors.New("Fail to wrap uninitialized shell")

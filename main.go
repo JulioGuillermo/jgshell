@@ -13,9 +13,21 @@ import (
 
 func main() {
 	cmd := ""
+	status := false
+	shell := false
 	for i, a := range os.Args {
 		if i == 0 {
 			continue
+		}
+		if i == 1 {
+			switch a {
+			case "--status":
+				status = true
+				continue
+			case "--shell":
+				shell = true
+				continue
+			}
 		}
 		if a != "" {
 			if i > 1 {
@@ -40,7 +52,42 @@ func main() {
 		fmt.Printf("Fail to wrap shell: %v", err)
 		os.Exit(1)
 	}
-	// ctl.GetStatus()
+
+	if status {
+		status, err := ctl.GetStatus()
+		if err != nil {
+			fmt.Printf("Fail to get status: %v", err)
+			os.Exit(1)
+		}
+		fmt.Printf(
+			"OS: %s\nShell: %s\nUser: %s\nDir: %s\n"+
+				"GIT Branch: %s\nGIT Branch Remote: %s\nGIT Ahead: %d\nGIT Behind: %d\n"+
+				"GIT Untracked: %d\nGIT Modified: %d\nGIT Staged: %d\nGIT Deleted: %d\nGIT Conflicts: %d\n",
+			status.OS,
+			status.Shell,
+			status.User,
+			status.Dir,
+			status.Git.BranchLocal,
+			status.Git.BranchRemote,
+			status.Git.Ahead,
+			status.Git.Behind,
+			status.Git.Untracked,
+			status.Git.Modified,
+			status.Git.Staged,
+			status.Git.Deleted,
+			status.Git.Conflicts,
+		)
+		return
+	}
+	if shell {
+		shell, err := ctl.GetShell()
+		if err != nil {
+			fmt.Printf("Fail to get shell: %v", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Shell: %s\n", shell)
+		return
+	}
 
 	hl, err := syntaxinfrastructure.NewTSHighlighter()
 	if err != nil {

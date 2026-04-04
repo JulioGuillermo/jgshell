@@ -7,6 +7,7 @@ import (
 
 type ShellController interface {
 	// Simple Shell
+	GetShell() (string, error)
 	WrapShell() error
 	SetSize(width, height int) error
 	OnClose(f func(ShellController))
