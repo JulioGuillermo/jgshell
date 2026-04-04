@@ -18,10 +18,12 @@ import (
 )
 
 type ShellController struct {
-	shellMu *sync.Mutex
+	locker sync.Locker
 
 	uuidGenerator  toolsdomain.UUIDGenerator
 	outputCleanner toolsdomain.OutputCleaner
+
+	history executordomain.History
 
 	shell               shelldomain.FullShell
 	shellDetector       shelldetectordomain.ShellDetector
@@ -29,13 +31,15 @@ type ShellController struct {
 	shellCmdWrapper     wrapperdomain.CmdWrapper
 	shellSimpleExecutor executordomain.SimpleExecutor
 	shellFastExecutor   executordomain.FastExecutor
+	shellExecutor       executordomain.Executor
 }
 
 func NewShellController(cmd string) (*ShellController, error) {
 	ctl := &ShellController{
-		shellMu:        &sync.Mutex{},
+		locker:         &sync.Mutex{},
 		uuidGenerator:  toolsinfrastructure.NewUUIDGenerator(),
 		outputCleanner: toolsapplication.NewOutputCleaner(),
+		history:        executorapplication.NewHistory(),
 	}
 
 	err := ctl.initShell(cmd)
@@ -61,16 +65,12 @@ func (ctl *ShellController) initShell(cmd string) error {
 }
 
 func (ctl *ShellController) initExecutors() error {
-	ctl.shellSimpleExecutor = executorapplication.NewSimpleExecutor(ctl.shell, ctl.shellMu, ctl.uuidGenerator)
+	ctl.shellSimpleExecutor = executorapplication.NewSimpleExecutor(ctl.shell, ctl.locker, ctl.uuidGenerator)
 	ctl.shellDetector = shelldetectorapplication.NewShellDetector(ctl.shellSimpleExecutor)
 	ctl.shellWrapper = wrapperinfrastructure.NewShellWrapper(ctl.shell, ctl.shellDetector)
-	err := ctl.shellWrapper.WrapShell()
-	if err != nil {
-		return err
-	}
-
 	ctl.shellCmdWrapper = wrapperapplication.NewCmdWrapper()
-	ctl.shellFastExecutor = executorapplication.NewFastExecutor(ctl.shell, ctl.shellMu, ctl.shellCmdWrapper)
+	ctl.shellFastExecutor = executorapplication.NewFastExecutor(ctl.shell, ctl.locker, ctl.shellCmdWrapper)
+	ctl.shellExecutor = executorapplication.NewExecutor(ctl.shell, ctl.locker, ctl.shellCmdWrapper, ctl.uuidGenerator)
 
 	return nil
 }

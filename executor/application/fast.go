@@ -12,23 +12,23 @@ import (
 
 type FastExecutor struct {
 	shell   shelldomain.Shell
-	mu      *sync.Mutex
+	locker  sync.Locker
 	wrapper wrapperdomain.CmdWrapper
 	reader  executordomain.Reader
 }
 
-func NewFastExecutor(shell shelldomain.Shell, mu *sync.Mutex, wrapper wrapperdomain.CmdWrapper) *FastExecutor {
+func NewFastExecutor(shell shelldomain.Shell, locker sync.Locker, wrapper wrapperdomain.CmdWrapper) *FastExecutor {
 	return &FastExecutor{
 		shell:   shell,
-		mu:      mu,
+		locker:  locker,
 		wrapper: wrapper,
 		reader:  NewReader(shell),
 	}
 }
 
 func (e *FastExecutor) Run(command string) (string, int, error) {
-	e.mu.Lock()
-	defer e.mu.Unlock()
+	e.locker.Lock()
+	defer e.locker.Unlock()
 
 	wrappedCommand := e.wrapper.WrapCmd(command)
 	_, err := e.shell.Write([]byte(wrappedCommand))

@@ -7,8 +7,8 @@ import (
 )
 
 func (s *State) FastCmd(cmd string) (string, int) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.locker.Lock()
+	defer s.locker.Unlock()
 
 	uuid := GetUUID()
 	s.isRunning = false

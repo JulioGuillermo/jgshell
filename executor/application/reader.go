@@ -1,6 +1,10 @@
 package executorapplication
 
-import shelldomain "github.com/julioguillermo/jgshell/shell/domain"
+import (
+	"sync"
+
+	shelldomain "github.com/julioguillermo/jgshell/shell/domain"
+)
 
 type Reader struct {
 	shell shelldomain.Shell
@@ -8,6 +12,36 @@ type Reader struct {
 
 func NewReader(shell shelldomain.Shell) *Reader {
 	return &Reader{shell: shell}
+}
+
+func (r *Reader) ReadPrecond(locker sync.Locker, pre func(string) bool, post func(string) (string, bool)) (string, error) {
+	var stop bool
+	var err error
+	var n int
+	output := ""
+	buf := make([]byte, 1024)
+
+	for !func() bool {
+		locker.Lock()
+		defer locker.Unlock()
+		if pre(output) {
+			return true
+		}
+
+		n, err = r.shell.Read(buf)
+		if err != nil {
+			return true
+		}
+		if n <= 0 {
+			return false
+		}
+
+		output, stop = post(output + string(buf[:n]))
+		return stop
+	}() {
+	}
+
+	return output, err
 }
 
 func (r *Reader) Read(f func(string) (string, bool)) (string, error) {

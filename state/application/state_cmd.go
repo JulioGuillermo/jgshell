@@ -16,8 +16,8 @@ func (s *State) Write(message []byte) error {
 		return err
 	}
 
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.locker.Lock()
+	defer s.locker.Unlock()
 	defer s.cond.Signal()
 
 	uuid := GetUUID()

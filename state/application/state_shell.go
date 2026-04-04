@@ -6,8 +6,8 @@ import (
 )
 
 func (s *State) GetSimpleOutput(cmd string) string {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.locker.Lock()
+	defer s.locker.Unlock()
 
 	uuid := GetUUID()
 	s.isRunning = false

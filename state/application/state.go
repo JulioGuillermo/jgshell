@@ -8,8 +8,8 @@ import (
 )
 
 type State struct {
-	mu   *sync.Mutex
-	cond *sync.Cond
+	locker sync.Locker
+	cond   *sync.Cond
 
 	shell     shelldomain.FullShell
 	history   []statedomain.Cmd
@@ -20,8 +20,8 @@ func NewState(shell shelldomain.FullShell) *State {
 	mu := &sync.Mutex{}
 	cond := sync.NewCond(mu)
 	state := &State{
-		mu:   mu,
-		cond: cond,
+		locker: mu,
+		cond:   cond,
 
 		shell:   shell,
 		history: []statedomain.Cmd{},

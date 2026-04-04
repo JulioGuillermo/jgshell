@@ -12,23 +12,23 @@ import (
 
 type SimpleExecutor struct {
 	shell         shelldomain.Shell
-	mu            *sync.Mutex
+	locker        sync.Locker
 	uuidGenerator toolsdomain.UUIDGenerator
 	reader        executordomain.Reader
 }
 
-func NewSimpleExecutor(shell shelldomain.Shell, mu *sync.Mutex, uuidGenerator toolsdomain.UUIDGenerator) *SimpleExecutor {
+func NewSimpleExecutor(shell shelldomain.Shell, locker sync.Locker, uuidGenerator toolsdomain.UUIDGenerator) *SimpleExecutor {
 	return &SimpleExecutor{
 		shell:         shell,
-		mu:            mu,
+		locker:        locker,
 		uuidGenerator: uuidGenerator,
 		reader:        NewReader(shell),
 	}
 }
 
 func (s *SimpleExecutor) Run(command string) (string, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.locker.Lock()
+	defer s.locker.Unlock()
 
 	uuid := s.uuidGenerator.Generate()
 
