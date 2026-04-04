@@ -1,6 +1,9 @@
 package controllerdomain
 
-import executordomain "github.com/julioguillermo/jgshell/executor/domain"
+import (
+	executordomain "github.com/julioguillermo/jgshell/executor/domain"
+	statusdomain "github.com/julioguillermo/jgshell/status/domain"
+)
 
 type ShellController interface {
 	// Simple Shell
@@ -13,4 +16,8 @@ type ShellController interface {
 	IsRunning() bool
 	Run(string) error
 	GetHistory() []*executordomain.Cmd
+
+	// Features
+	GetStatus() (*statusdomain.Status, error)
+	GetAutocomplete(line string, cursor int) ([]string, error)
 }
