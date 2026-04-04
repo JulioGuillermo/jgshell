@@ -7,6 +7,10 @@ import (
 )
 
 func (a *App) View() tea.View {
+	if cmd := a.ctl.LastCmd(); cmd != nil && cmd.IsFullScreen() {
+		return tea.NewView(cmd.Output)
+	}
+
 	list := a.cmdViewPort.View()
 	elements := []string{list}
 

@@ -30,3 +30,7 @@ func (ctl *ShellController) Run(command string) error {
 func (ctl *ShellController) GetHistory() []*executordomain.Cmd {
 	return ctl.history.GetCmd()
 }
+
+func (ctl *ShellController) LastCmd() *executordomain.Cmd {
+	return ctl.history.LastCmd()
+}

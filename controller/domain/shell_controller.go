@@ -16,6 +16,7 @@ type ShellController interface {
 	IsRunning() bool
 	Run(string) error
 	GetHistory() []*executordomain.Cmd
+	LastCmd() *executordomain.Cmd
 
 	// Features
 	GetStatus() (*statusdomain.Status, error)
