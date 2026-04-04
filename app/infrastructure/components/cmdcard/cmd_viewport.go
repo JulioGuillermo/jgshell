@@ -24,7 +24,7 @@ func NewCmdViewPort(width, height int, highlighter syntaxdomain.Highlighter) *Cm
 func (m *CmdViewPort) Update(cmds []*executordomain.Cmd, width int, msg tea.Msg) (*CmdViewPort, tea.Cmd) {
 	cards := make([]string, 0, len(cmds))
 	for _, c := range cmds {
-		card := CmdCard(c, width, m.highlighter)
+		card := NewCmdCard(c, m.highlighter).View(width)
 		cards = append(cards, card)
 	}
 	m.viewport.SetContent(lipgloss.JoinVertical(
