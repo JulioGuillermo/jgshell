@@ -18,6 +18,7 @@ type Input struct {
 	highlighter syntaxdomain.Highlighter
 	showCursor  bool
 	lastInput   time.Time
+	suggestion  string
 }
 
 func New(ctl controllerdomain.ShellController, onSend func(string), highlighter syntaxdomain.Highlighter) *Input {
@@ -73,12 +74,20 @@ func (i *Input) Update(msg tea.Msg) (*Input, tea.Cmd) {
 			return i, nil
 		case "shift+enter", "alt+enter":
 			i.textarea.InsertString("\n")
+		case "ctrl+space":
+			i.ApplySuggestion()
+		case "right":
+			if i.Position() >= len(i.Value()) {
+				i.ApplySuggestion()
+			}
 		}
 	}
 
 	ta, cmd := i.textarea.Update(msg)
 	i.textarea = ta
 	cmds = append(cmds, cmd)
+
+	i.suggestion = i.GetSuggestion()
 
 	return i, tea.Batch(cmds...)
 }
@@ -95,24 +104,7 @@ func (i *Input) View(width, height int) string {
 		BorderLeft(true).
 		BorderRight(true).
 		BorderBottom(true).
-		Render(i.Render(i.GetSuggestion()))
-}
-
-func (i *Input) GetSuggestion() string {
-	value := i.textarea.Value()
-	if value == "" {
-		return ""
-	}
-	suggestion := i.ctl.FilterLast(value)
-	if suggestion == "" {
-		return ""
-	}
-
-	suggestion = strings.TrimPrefix(suggestion, value)
-	suggestion = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#555555")).
-		Render(suggestion)
-	return suggestion
+		Render(i.Render(i.GetRenderSuggestion()))
 }
 
 func (i *Input) Value() string {
