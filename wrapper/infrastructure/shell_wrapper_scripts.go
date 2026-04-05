@@ -47,7 +47,7 @@ Write-Output "Wrapper script executed successfully"
 func (s *ShellWrapper) getConfig(sh string) (*WrapperConfig, error) {
 	config, ok := WrapperConfigs[sh]
 	if !ok {
-		config = WrapperConfigs["bash"]
+		config = WrapperConfigs["sh"]
 	}
 
 	if config.Loader == "" {

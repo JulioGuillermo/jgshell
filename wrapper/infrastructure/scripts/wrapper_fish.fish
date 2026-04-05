@@ -1,14 +1,6 @@
-# Markers:
-#   START: \x1b]123;START\x07<user> <pwd> >>>
-#   END:   \x1b]123;<exit_code>;<uuid>;DONE\x07
-
-# function _jg_emit_start_marker --on-event fish_preexec
-    # printf '\033]123;START;%s;%s;>>>\007\n' (whoami) (pwd)
-# end
-
 function _jg_emit_end_marker --on-event fish_prompt
     set -l exit_code $status
-    printf '\033]123;%s;%s;DONE\007\n' $exit_code "$JG_BLOCK_UUID"
+    printf '\033]JGSHELL;%s;DONE\007\n' $exit_code
 end
 
 function fish_prompt

@@ -1,24 +1,8 @@
 set +o history
 
-# Función para el inicio (Solo se dispara antes del comando del usuario)
-_jg_preexec() {
-    # Evitamos que se ejecute si el comando está vacío
-    [ -z "$BASH_COMMAND" ] && return
-
-    # Emitimos el marcador de inicio
-    printf '\033]123;START;%s;%s;>>>\007' "$(whoami)" "$(pwd)"
-}
-
-# Función para el final (Se mete en el Prompt)
 _jg_prompt() {
     local EXIT_CODE=$?
-    # Emitimos el marcador de fin con el código de salida
-    printf '\033]123;%s;DONE\007' "$EXIT_CODE"
+    printf '\033]JGSHELL;%s;DONE\007' "$EXIT_CODE"
 }
 
-# En Bash, usamos el trap DEBUG pero con un seguro
-# set -o functrace
-# trap '_jg_preexec' DEBUG
-
-# El PS1 solo llama a la función de cierre
 PS1='$(_jg_prompt) '

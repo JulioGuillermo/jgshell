@@ -79,6 +79,7 @@ func (s *ShellConnector) initCmd() error {
 	if err != nil {
 		return err
 	}
+	// setEcho(ptyFile.Fd(), false)
 	s.ptyFile = ptyFile
 	// fd := int(s.ptyFile.Fd())
 	// _, err = term.MakeRaw(fd)

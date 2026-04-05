@@ -7,31 +7,44 @@ import (
 	"github.com/acarl005/stripansi"
 	executordomain "github.com/julioguillermo/jgshell/executor/domain"
 	shelldomain "github.com/julioguillermo/jgshell/shell/domain"
+	shelldetectordomain "github.com/julioguillermo/jgshell/shelldetector/domain"
 	wrapperdomain "github.com/julioguillermo/jgshell/wrapper/domain"
 )
 
 type FastExecutor struct {
-	shell   shelldomain.Shell
-	locker  sync.Locker
-	wrapper wrapperdomain.CmdWrapper
-	reader  executordomain.Reader
+	shell         shelldomain.Shell
+	shellDetector shelldetectordomain.ShellDetector
+	locker        sync.Locker
+	wrapper       wrapperdomain.CmdWrapper
+	reader        executordomain.Reader
 }
 
-func NewFastExecutor(shell shelldomain.Shell, locker sync.Locker, wrapper wrapperdomain.CmdWrapper) *FastExecutor {
+func NewFastExecutor(
+	shell shelldomain.Shell,
+	shellDetector shelldetectordomain.ShellDetector,
+	locker sync.Locker,
+	wrapper wrapperdomain.CmdWrapper,
+) *FastExecutor {
 	return &FastExecutor{
-		shell:   shell,
-		locker:  locker,
-		wrapper: wrapper,
-		reader:  NewReader(shell),
+		shell:         shell,
+		shellDetector: shellDetector,
+		locker:        locker,
+		wrapper:       wrapper,
+		reader:        NewReader(shell),
 	}
 }
 
 func (e *FastExecutor) Run(command string) (string, int, error) {
+	sh, err := e.shellDetector.DetectShell()
+	if err != nil {
+		return "", -1, err
+	}
+
 	e.locker.Lock()
 	defer e.locker.Unlock()
 
-	wrappedCommand := e.wrapper.WrapCmd(command)
-	_, err := e.shell.Write([]byte(wrappedCommand))
+	wrappedCommand := e.wrapper.WrapCmd(sh, command)
+	_, err = e.shell.Write([]byte(wrappedCommand))
 	if err != nil {
 		return err.Error(), -2, err
 	}

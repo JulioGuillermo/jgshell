@@ -1,12 +1,5 @@
 #!/bin/sh
-# Markers:
-#   START: \x1b]123;START\x07<user> <pwd> >>>
-#   END:   \x1b]123;<exit_code>;<uuid>;DONE\x07
+
 export HISTSIZE=0
 
-PS1='$(printf "\033]123;$?;DONE\007")'
-
-# _jg_emit_start_marker() {
-#     printf '\033]123;START;%s;%s;>>>\007' "$(whoami)" "$(pwd)"
-# }
-# trap '_jg_emit_start_marker' DEBUG 2>/dev/null
+PS1='$(printf "\033]JGSHELL;$?;DONE\007")'

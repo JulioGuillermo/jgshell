@@ -8,6 +8,7 @@ import (
 	"github.com/julioguillermo/jgshell/app/infrastructure/app"
 	controllerdomain "github.com/julioguillermo/jgshell/controller/domain"
 	controllerinfrastructure "github.com/julioguillermo/jgshell/controller/infrastructure"
+	statusdomain "github.com/julioguillermo/jgshell/status/domain"
 	syntaxinfrastructure "github.com/julioguillermo/jgshell/syntax/infrastruct"
 )
 
@@ -49,16 +50,6 @@ func main() {
 	ctl.SetSize(24, 80)
 
 	if shell {
-		// ctl.Shell.Write([]byte("printf   '\\nhello\\n'\n"))
-		// for {
-		// 	buf := make([]byte, 1024)
-		// 	n, err := ctl.Shell.Read(buf)
-		// 	if err != nil {
-		// 		fmt.Printf("Fail to read from shell: %v", err)
-		// 		os.Exit(1)
-		// 	}
-		// 	fmt.Printf("%s", buf[:n])
-		// }
 		shell, err := ctl.GetShell()
 		if err != nil {
 			fmt.Printf("Fail to get shell: %v", err)
@@ -75,10 +66,21 @@ func main() {
 	}
 
 	if status {
+		out, exit, err := ctl.ShellFastExecutor.Run("printf 'Hello World'")
+		if err != nil {
+			fmt.Printf("Fail to run command: %v", err)
+			os.Exit(1)
+		}
+		fmt.Println(exit)
+		fmt.Println(out)
+
 		status, err := ctl.GetStatus()
 		if err != nil {
 			fmt.Printf("Fail to get status: %v", err)
 			os.Exit(1)
+		}
+		if status.Git == nil {
+			status.Git = &statusdomain.Git{}
 		}
 		fmt.Printf(
 			"OS: %s\nShell: %s\nUser: %s\nDir: %s\n"+

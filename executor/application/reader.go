@@ -51,6 +51,8 @@ func (r *Reader) Read(f func(string) (string, bool)) (string, error) {
 	output := ""
 	buf := make([]byte, 1024)
 
+	// re := regexp.MustCompile(`\x1b\[[0-9;?]*[a-zA-Z]`)
+
 	for {
 		n, err := r.shell.Read(buf)
 		if err != nil {
@@ -59,8 +61,8 @@ func (r *Reader) Read(f func(string) (string, bool)) (string, error) {
 		if n <= 0 {
 			continue
 		}
-		output, stop = f(output + string(buf[:n]))
-		// fmt.Println(output)
+		output, stop = f(r.Clear(output + string(buf[:n])))
+		// fmt.Println(re.ReplaceAllString(output, ""))
 		if stop {
 			break
 		}

@@ -90,8 +90,8 @@ func (ctl *ShellController) initExecutors() error {
 	ctl.ShellDetector = shelldetectorapplication.NewShellDetector(ctl.ShellSimpleExecutor)
 	ctl.ShellWrapper = wrapperinfrastructure.NewShellWrapper(ctl.Shell, ctl.ShellDetector)
 	ctl.ShellCmdWrapper = wrapperapplication.NewCmdWrapper()
-	ctl.ShellFastExecutor = executorapplication.NewFastExecutor(ctl.Shell, ctl.Locker, ctl.ShellCmdWrapper)
-	ctl.ShellExecutor = executorapplication.NewExecutor(ctl.Shell, ctl.Locker, ctl.ShellCmdWrapper, ctl.UUIDGenerator)
+	ctl.ShellFastExecutor = executorapplication.NewFastExecutor(ctl.Shell, ctl.ShellDetector, ctl.Locker, ctl.ShellCmdWrapper)
+	ctl.ShellExecutor = executorapplication.NewExecutor(ctl.Shell, ctl.ShellDetector, ctl.Locker, ctl.ShellCmdWrapper, ctl.UUIDGenerator)
 
 	return nil
 }

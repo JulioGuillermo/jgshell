@@ -24,13 +24,18 @@ func NewCmdWrapperWithMarkers(startMarker, endMarker *regexp.Regexp) *CmdWrapper
 
 func NewCmdWrapper() *CmdWrapper {
 	return NewCmdWrapperWithMarkers(
-		regexp.MustCompile(`\033]123;START;(.+);(.+);>>>\007`),
-		regexp.MustCompile(`\033]123;(\d+);DONE\007`),
+		regexp.MustCompile(`\033]JGSHELL;START;(.+);(.+);>>>\007`),
+		regexp.MustCompile(`\033]JGSHELL;(\d+);DONE\007`),
 	)
 }
 
-func (w *CmdWrapper) WrapCmd(command string) string {
-	return fmt.Sprintf("printf \"\\033]123;START;%%s;%%s;>>>\\007\" \"$(whoami)\" \"$(pwd)\" ; {\n%s\n}\n", strings.TrimSpace(command))
+func (w *CmdWrapper) WrapCmd(sh, command string) string {
+	switch sh {
+	case "powershell":
+		return fmt.Sprintf("printf \"\\033]JGSHELL;START;%%s;%%s;>>>\\007\" \"$(whoami)\" \"$(pwd)\" ; . {\n%s\n}\r\r\r", strings.TrimSpace(command))
+	default:
+		return fmt.Sprintf("printf \"\\033]JGSHELL;START;%%s;%%s;>>>\\007\" \"$(whoami)\" \"$(pwd)\" ; {\n%s\n}\r\r\r", strings.TrimSpace(command))
+	}
 }
 
 func (w *CmdWrapper) UnwrapCmd(output string, started bool) *wrapperdomain.CmdUnwrapResult {
