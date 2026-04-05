@@ -3,6 +3,7 @@ package menu
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"charm.land/bubbles/v2/list"
 	tea "charm.land/bubbletea/v2"
@@ -31,15 +32,16 @@ func (d SimpleItemDelegate) Render(w io.Writer, m list.Model, index int, listIte
 	if !ok {
 		return
 	}
+	str := strings.ReplaceAll(string(i), "\n", "\n"+strings.Repeat(" ", total+4))
 
 	fStr := fmt.Sprintf("%%0%dd. %%s", total)
-	str := fmt.Sprintf(fStr, index+1, i)
+	str = fmt.Sprintf(fStr, index+1, str)
 
 	output := ""
 	if index == m.Index() {
-		output = SelectedItemStyle.Render("> " + str)
+		output = "> " + SelectedItemStyle.Render(str)
 	} else {
-		output = ItemStyle.Render("  " + str)
+		output = "  " + ItemStyle.Render(str)
 	}
 
 	fmt.Fprint(w, output)

@@ -1,9 +1,9 @@
 package persistenceinfrastructure
 
 import (
+	"encoding/json"
 	"os"
 	"path"
-	"strings"
 )
 
 type Persistence struct {
@@ -38,17 +38,23 @@ func (p *Persistence) LoadHistory() ([]string, error) {
 		}
 		return nil, err
 	}
-	return strings.Split(string(history), "\n"), nil
+	var lines []string
+	err = json.Unmarshal(history, &lines)
+	return lines, err
 }
 
 func (p *Persistence) SaveHistory(history []string) error {
+	historyBytes, err := json.Marshal(history)
+	if err != nil {
+		return err
+	}
 	historyFilePath, err := p.getHistoryFilePath()
 	if err != nil {
 		return err
 	}
 	return os.WriteFile(
 		historyFilePath,
-		[]byte(strings.Join(history, "\n")),
+		historyBytes,
 		0777,
 	)
 }
