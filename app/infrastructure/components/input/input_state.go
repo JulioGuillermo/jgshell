@@ -3,8 +3,6 @@ package input
 import (
 	"strings"
 	"unicode/utf8"
-
-	"github.com/julioguillermo/jgshell/tools"
 )
 
 func (i *Input) Position() int {
@@ -48,21 +46,40 @@ func (i *Input) InsertAutocomplete(text string) {
 	cursorLine := i.textarea.Line()
 	lines := strings.Split(val, "\n")
 	line := lines[cursorLine]
-
-	start := i.GetCurrentLinePosition()
-	end := start
-	for start-1 >= 0 && start-1 < len(line) && tools.IsAlphaNumeric(line[start-1]) {
-		start--
-	}
-	for end >= 0 && end < len(line) && tools.IsAlphaNumeric(line[end]) {
-		end++
-	}
-
-	start = max(0, min(start, len(line)))
-	end = max(0, min(end, len(line)))
-
-	lines[cursorLine] = line[:start] + text + line[end:]
+	pos := i.GetCurrentLinePosition()
+	lines[cursorLine] = i.GetCompletionLine(text, line, pos)
 
 	i.textarea.SetValue(strings.Join(lines, "\n"))
-	i.textarea.SetCursorColumn(start + len(text))
+	i.textarea.SetCursorColumn(pos + len(text))
+}
+
+func (i *Input) GetCompletionLine(completion, line string, cursor int) string {
+	start := line[:cursor]
+	end := line[cursor:]
+
+	dividerEnd := i.GetCompletionEndDivider(start, completion)
+	dividerStart := i.GetCompletionStartDivider(end, completion)
+
+	start = strings.TrimSuffix(start, completion[:dividerEnd])
+	end = strings.TrimPrefix(end, completion[dividerStart:])
+
+	return start + completion + end
+}
+
+func (i *Input) GetCompletionEndDivider(line, completion string) int {
+	for i := len(completion); i >= 0; i-- {
+		if strings.HasSuffix(line, completion[:i]) {
+			return i
+		}
+	}
+	return 0
+}
+
+func (i *Input) GetCompletionStartDivider(line, completion string) int {
+	for i := 0; i < len(completion); i++ {
+		if strings.HasPrefix(line, completion[i:]) {
+			return i
+		}
+	}
+	return len(completion)
 }
