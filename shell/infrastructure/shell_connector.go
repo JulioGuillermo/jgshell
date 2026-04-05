@@ -57,7 +57,8 @@ func (s *ShellConnector) initEnv() error {
 	s.cmd.Env = append(
 		s.cmd.Env,
 		// "TERM=dumb",
-		"TERM=xterm-256color",
+		"TERM=xterm",
+		// "TERM=xterm-256color",
 		"GIT_TERMINAL_PROMPT=1",
 		"GIT_CPT_FORBID_DECORATION=1",
 	)

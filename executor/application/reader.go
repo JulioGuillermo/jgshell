@@ -42,7 +42,7 @@ func (r *Reader) ReadPrecond(locker sync.Locker, pre func(string) bool, post fun
 			return false
 		}
 
-		output, stop = post(output + string(buf[:n]))
+		output, stop = post(r.Clear(output + string(buf[:n])))
 		return stop
 	}() {
 	}

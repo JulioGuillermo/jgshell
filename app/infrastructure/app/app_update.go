@@ -55,6 +55,11 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 	}
 
+	switch msg := msg.(type) {
+	case tea.MouseClickMsg:
+		a.handleClick(msg, height)
+	}
+
 	return a, tea.Batch(cmds...)
 }
 

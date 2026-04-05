@@ -59,3 +59,7 @@ func (m *CmdViewPort) Resize(width, height int) {
 func (m *CmdViewPort) GoToBottom() {
 	m.bottom = true
 }
+
+func (m *CmdViewPort) ViewportYOffset() int {
+	return m.viewport.YOffset()
+}
