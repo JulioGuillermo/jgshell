@@ -7,11 +7,15 @@ import (
 )
 
 type Reader struct {
-	shell shelldomain.Shell
+	shell    shelldomain.Shell
+	cleanner *Cleanner
 }
 
 func NewReader(shell shelldomain.Shell) *Reader {
-	return &Reader{shell: shell}
+	return &Reader{
+		shell:    shell,
+		cleanner: NewCleanner(),
+	}
 }
 
 func (r *Reader) ReadPrecond(locker sync.Locker, pre func(string) bool, post func(string) (string, bool)) (string, error) {
@@ -69,4 +73,11 @@ func (r *Reader) Read(f func(string) (string, bool)) (string, error) {
 	}
 
 	return output, nil
+}
+
+func (r *Reader) Clear(str string) string {
+	if r.cleanner == nil {
+		r.cleanner = NewCleanner()
+	}
+	return r.cleanner.Clear(str)
 }
