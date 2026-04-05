@@ -1,7 +1,8 @@
 #!/usr/bin/env pwsh
 
 if (Get-Command Stop-OhMyPosh -ErrorAction SilentlyContinue)
-{ Stop-OhMyPosh
+{
+    Stop-OhMyPosh
 }
 $global:PromptPurge = $true
 

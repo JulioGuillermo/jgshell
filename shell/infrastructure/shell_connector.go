@@ -80,12 +80,12 @@ func (s *ShellConnector) initCmd() error {
 		return err
 	}
 	// setEcho(ptyFile.Fd(), false)
-	s.ptyFile = ptyFile
-	// fd := int(s.ptyFile.Fd())
+	// fd := s.ptyFile.Fd()
 	// _, err = term.MakeRaw(fd)
 	// if err != nil {
 	// 	return err
 	// }
+	s.ptyFile = ptyFile
 	return s.SetSize(24, 80)
 }
 

@@ -1,5 +1,10 @@
 package input
 
+func (i *Input) HistoryClear() {
+	i.historyIdx = -1
+	i.original = ""
+}
+
 func (i *Input) HistoryUp() {
 	if i.GetCurrentLineRow() > 0 {
 		return

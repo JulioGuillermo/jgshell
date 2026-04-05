@@ -9,9 +9,10 @@ const (
 )
 
 type Cleanner struct {
-	str string
-	src []byte
-	out strings.Builder
+	str            string
+	src            []byte
+	out            strings.Builder
+	pendingEscTail string
 }
 
 func NewCleanner() *Cleanner {
@@ -19,6 +20,10 @@ func NewCleanner() *Cleanner {
 }
 
 func (c *Cleanner) Clear(str string) string {
+	if c.pendingEscTail != "" {
+		str = c.pendingEscTail + str
+		c.pendingEscTail = ""
+	}
 	if str == "" {
 		return ""
 	}
@@ -27,6 +32,7 @@ func (c *Cleanner) Clear(str string) string {
 	c.src = []byte(c.str)
 
 	if cut := c.findTrailingIncompleteEscape(); cut >= 0 {
+		c.pendingEscTail = c.str[cut:]
 		c.str = c.str[:cut]
 		c.src = []byte(c.str)
 	}

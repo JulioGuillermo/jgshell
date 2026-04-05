@@ -78,6 +78,7 @@ func (i *Input) Update(msg tea.Msg) (*Input, tea.Cmd) {
 			}
 			i.onSend(strings.ReplaceAll(i.Value(), "\\\n", "\n"))
 			i.textarea.SetValue("")
+			i.HistoryClear()
 			return i, nil
 		case "ctrl+c":
 			i.textarea.SetValue("")
