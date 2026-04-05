@@ -35,7 +35,7 @@ func (w *CmdWrapper) WrapCmd(sh, command string) string {
 	case "powershell":
 		return fmt.Sprintf("printf \"\\033]JGSHELL;START;%%s;%%s;>>>\\007\" \"$(whoami)\" \"$(pwd)\" ; . {\n%s\n}\n\n\n", command)
 	default:
-		return fmt.Sprintf("printf \"\\033]JGSHELL;START;%%s;%%s;>>>\\007\" \"$(whoami)\" \"$(pwd)\" ; {\n%s\n}\n\n\n", command)
+		return fmt.Sprintf("printf \"\\033]JGSHELL;START;%%s;%%s;>>>\\007\" \"$(whoami)\" \"$(pwd)\" ; {\n%s\n}\n", command)
 	}
 }
 
