@@ -53,12 +53,14 @@ func (s *ShellConnector) initEnv() error {
 		s.cmd.Env = []string{}
 	}
 
-	for _, env := range os.Environ() {
-		s.cmd.Env = append(s.cmd.Env, env)
-	}
-
-	s.cmd.Env = append(s.cmd.Env, "TERM=xterm-256color")
-	// s.cmd.Env = append(s.cmd.Env, "TERM=dumb")
+	s.cmd.Env = append(s.cmd.Env, os.Environ()...)
+	s.cmd.Env = append(
+		s.cmd.Env,
+		// "TERM=dumb",
+		"TERM=xterm-256color",
+		"GIT_TERMINAL_PROMPT=1",
+		"GIT_CPT_FORBID_DECORATION=1",
+	)
 
 	return nil
 }
@@ -79,7 +81,10 @@ func (s *ShellConnector) initCmd() error {
 	if err != nil {
 		return err
 	}
-	// setEcho(ptyFile.Fd(), false)
+	err = configPty(ptyFile.Fd())
+	if err != nil {
+		return err
+	}
 	// fd := s.ptyFile.Fd()
 	// _, err = term.MakeRaw(fd)
 	// if err != nil {
