@@ -1,12 +1,20 @@
 package shellinfrastructure
 
-import "golang.org/x/sys/unix"
+import (
+	"golang.org/x/sys/unix"
+)
 
 func configPty(fd uintptr) error {
+	// _, err := term.MakeRaw(fd)
+	// if err != nil {
+	// 	return err
+	// }
+
 	termios, err := unix.IoctlGetTermios(int(fd), unix.TCGETS)
 	if err != nil {
 		return err
 	}
+	termios.Iflag |= unix.ICRNL
 
 	termios.Lflag |= unix.ECHO
 	// termios.Lflag &^= unix.ECHO

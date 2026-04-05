@@ -1,6 +1,7 @@
 package shellinfrastructure
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -15,6 +16,8 @@ type ShellConnector struct {
 	cmdArgs []string
 	cmd     *exec.Cmd
 	ptyFile *os.File
+	rows    uint16
+	cols    uint16
 }
 
 func NewShellConnector(cmd string) (shelldomain.FullShell, error) {
@@ -86,16 +89,13 @@ func (s *ShellConnector) initCmd() error {
 	if err != nil {
 		return err
 	}
-	// fd := s.ptyFile.Fd()
-	// _, err = term.MakeRaw(fd)
-	// if err != nil {
-	// 	return err
-	// }
 	s.ptyFile = ptyFile
 	return s.SetSize(24, 80)
 }
 
 func (s *ShellConnector) SetSize(r, c uint16) error {
+	s.rows = r
+	s.cols = c
 	return pty.Setsize(s.ptyFile, &pty.Winsize{
 		Rows: r,
 		Cols: c,
@@ -117,7 +117,7 @@ func (s *ShellConnector) Read(p []byte) (int, error) {
 	if n > 0 {
 		data := string(p[:n])
 		if strings.Contains(data, "\x1b[6n") {
-			s.ptyFile.Write([]byte("\x1b[2;2R"))
+			fmt.Fprintf(s.ptyFile, "\x1b[%d;0R", s.rows)
 		}
 	}
 	return n, err

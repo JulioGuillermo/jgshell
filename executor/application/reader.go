@@ -76,9 +76,9 @@ func (r *Reader) Read(f func(string) (string, bool)) (string, error) {
 }
 
 func (r *Reader) Clear(str string) string {
-	// return str
-	if r.cleanner == nil {
-		r.cleanner = NewCleanner()
-	}
-	return r.cleanner.Clear(str)
+	return str
+	// if r.cleanner == nil {
+	// 	r.cleanner = NewCleanner()
+	// }
+	// return r.cleanner.Clear(str)
 }
