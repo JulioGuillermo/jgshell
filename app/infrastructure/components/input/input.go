@@ -50,7 +50,7 @@ func New(ctl controllerdomain.ShellController, onSend func(string), highlighter 
 }
 
 func (i *Input) Init() tea.Cmd {
-	return doBlink()
+	return nil
 }
 
 func (i *Input) Update(msg tea.Msg) (*Input, tea.Cmd) {
@@ -61,12 +61,6 @@ func (i *Input) Update(msg tea.Msg) (*Input, tea.Cmd) {
 	cmds := []tea.Cmd{}
 
 	switch msg := msg.(type) {
-	case CursorBlink:
-		if time.Since(i.lastInput) > time.Millisecond*500 {
-			i.showCursor = !i.showCursor
-			i.lastInput = time.Now()
-		}
-		cmds = append(cmds, doBlink())
 	case tea.KeyMsg:
 		i.lastInput = time.Now()
 		i.showCursor = true
@@ -95,6 +89,11 @@ func (i *Input) Update(msg tea.Msg) (*Input, tea.Cmd) {
 		case "down":
 			i.HistoryDown()
 		}
+	}
+
+	if time.Since(i.lastInput) > time.Millisecond*500 {
+		i.showCursor = !i.showCursor
+		i.lastInput = time.Now()
 	}
 
 	ta, cmd := i.textarea.Update(msg)
