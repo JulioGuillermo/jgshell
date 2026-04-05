@@ -62,6 +62,7 @@ func (s *ShellConnector) initEnv() error {
 		// "TERM=dumb",
 		"TERM=xterm",
 		// "TERM=xterm-256color",
+		"SHELL_INTEGRATION=0",
 		"GIT_TERMINAL_PROMPT=1",
 		"GIT_CPT_FORBID_DECORATION=1",
 	)

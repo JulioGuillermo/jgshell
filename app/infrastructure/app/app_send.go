@@ -26,7 +26,7 @@ func (a *App) sendKey(msg tea.KeyMsg) {
 	case "ctrl+c":
 		a.ctl.Run("\x03")
 	case "enter":
-		a.ctl.Run("\r")
+		a.ctl.Run("\n")
 	case "backspace":
 		a.ctl.Run("\x7f")
 	case "tab":
