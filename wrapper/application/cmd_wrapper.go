@@ -30,11 +30,12 @@ func NewCmdWrapper() *CmdWrapper {
 }
 
 func (w *CmdWrapper) WrapCmd(sh, command string) string {
+	command = strings.TrimSpace(command)
 	switch sh {
 	case "powershell":
-		return fmt.Sprintf("printf \"\\033]JGSHELL;START;%%s;%%s;>>>\\007\" \"$(whoami)\" \"$(pwd)\" ; . {\n%s\n}\r\r\r", strings.TrimSpace(command))
+		return fmt.Sprintf("printf \"\\033]JGSHELL;START;%%s;%%s;>>>\\007\" \"$(whoami)\" \"$(pwd)\" ; . {\n%s\n}\r\r\r", command)
 	default:
-		return fmt.Sprintf("printf \"\\033]JGSHELL;START;%%s;%%s;>>>\\007\" \"$(whoami)\" \"$(pwd)\" ; {\n%s\n}\r\r\r", strings.TrimSpace(command))
+		return fmt.Sprintf("printf \"\\033]JGSHELL;START;%%s;%%s;>>>\\007\" \"$(whoami)\" \"$(pwd)\" ; {\n%s\n}\r\r\r", command)
 	}
 }
 

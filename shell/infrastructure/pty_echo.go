@@ -11,8 +11,17 @@ func configPty(fd uintptr) error {
 	termios.Lflag |= unix.ECHO
 	// termios.Lflag &^= unix.ECHO
 
-	termios.Oflag |= unix.OPOST | unix.ONLCR
-	termios.Lflag |= unix.ICANON | unix.ISIG | unix.ECHO
+	termios.Lflag |= unix.ICANON
+	// termios.Lflag &^= unix.ICANON
+
+	termios.Lflag |= unix.ISIG
+	// termios.Lflag &^= unix.ISIG
+
+	termios.Oflag |= unix.OPOST
+	// termios.Oflag &^= unix.OPOST
+
+	termios.Oflag |= unix.ONLCR
+	// termios.Oflag &^= unix.ONLCR
 
 	return unix.IoctlSetTermios(int(fd), unix.TCSETS, termios)
 }

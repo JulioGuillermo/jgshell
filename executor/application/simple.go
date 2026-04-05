@@ -34,7 +34,7 @@ func (s *SimpleExecutor) Run(command string) (string, error) {
 
 	_, err := fmt.Fprintf(
 		s.shell,
-		`printf "<<<JGSHELL_START;%%s>>> %%s <<<JGSHELL_END;%%s>>>\n" "%s" "$(%s)" "%s"
+		`printf "<<<JGSHELL_START;%%s>>> %%s <<<JGSHELL_END;%%s>>>\r" "%s" "$(%s)" "%s"
 `,
 		uuid, command, uuid,
 	)
