@@ -16,9 +16,15 @@ type Input struct {
 	textarea    textarea.Model
 	onSend      func(string)
 	highlighter syntaxdomain.Highlighter
-	showCursor  bool
-	lastInput   time.Time
-	suggestion  string
+
+	showCursor bool
+	lastInput  time.Time
+
+	suggestion string
+
+	original     string
+	historyItems []string
+	historyIdx   int
 }
 
 func New(ctl controllerdomain.ShellController, onSend func(string), highlighter syntaxdomain.Highlighter) *Input {
@@ -39,6 +45,7 @@ func New(ctl controllerdomain.ShellController, onSend func(string), highlighter 
 		onSend:      onSend,
 		textarea:    ta,
 		highlighter: highlighter,
+		historyIdx:  -1,
 	}
 }
 
@@ -72,6 +79,8 @@ func (i *Input) Update(msg tea.Msg) (*Input, tea.Cmd) {
 			i.onSend(strings.ReplaceAll(i.Value(), "\\\n", "\n"))
 			i.textarea.SetValue("")
 			return i, nil
+		case "ctrl+c":
+			i.textarea.SetValue("")
 		case "shift+enter", "alt+enter":
 			i.textarea.InsertString("\n")
 		case "ctrl+space":
@@ -80,8 +89,10 @@ func (i *Input) Update(msg tea.Msg) (*Input, tea.Cmd) {
 			if i.Position() >= len(i.Value()) {
 				i.ApplySuggestion()
 			}
-		case "ctrl+c":
-			i.textarea.SetValue("")
+		case "up":
+			i.HistoryUp()
+		case "down":
+			i.HistoryDown()
 		}
 	}
 

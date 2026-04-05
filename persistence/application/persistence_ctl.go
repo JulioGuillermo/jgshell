@@ -38,11 +38,13 @@ func (p *PersistenceController) Push(cmd string) error {
 }
 
 func (p *PersistenceController) Get() []string {
-	return p.cmds
+	cp := make([]string, len(p.cmds))
+	copy(cp, p.cmds)
+	return cp
 }
 
 func (p *PersistenceController) Filter(start string) []string {
-	return slices.DeleteFunc(p.cmds, func(c string) bool {
+	return slices.DeleteFunc(p.Get(), func(c string) bool {
 		return !strings.HasPrefix(c, start)
 	})
 }

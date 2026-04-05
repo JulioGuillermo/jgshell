@@ -108,9 +108,9 @@ func (h *History) onSelect() {
 }
 
 func (h *History) View(width, height int) string {
-	if len(h.items) == 0 {
-		return ""
-	}
+	// if len(h.items) == 0 {
+	// 	return ""
+	// }
 	elements := []string{h.list.View()}
 	if pagination := h.paginationView(width - 2); pagination != "" {
 		elements = append(elements, pagination)

@@ -23,6 +23,14 @@ func (i *Input) Position() int {
 	return pos
 }
 
+func (i *Input) GetCurrentLineRow() int {
+	return i.textarea.Line()
+}
+
+func (i *Input) GetLinesCount() int {
+	return i.textarea.LineCount()
+}
+
 func (i *Input) GetCurrentLine() string {
 	val := i.textarea.Value()
 	cursorLine := i.textarea.Line()
