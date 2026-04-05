@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/creack/pty"
-
 	shelldomain "github.com/julioguillermo/jgshell/shell/domain"
 )
 
@@ -59,6 +58,7 @@ func (s *ShellConnector) initEnv() error {
 	}
 
 	s.cmd.Env = append(s.cmd.Env, "TERM=xterm-256color")
+	// s.cmd.Env = append(s.cmd.Env, "TERM=dumb")
 
 	return nil
 }
@@ -80,6 +80,11 @@ func (s *ShellConnector) initCmd() error {
 		return err
 	}
 	s.ptyFile = ptyFile
+	// fd := int(s.ptyFile.Fd())
+	// _, err = term.MakeRaw(fd)
+	// if err != nil {
+	// 	return err
+	// }
 	return s.SetSize(24, 80)
 }
 
@@ -101,7 +106,15 @@ func (s *ShellConnector) Read(p []byte) (int, error) {
 	if s.ptyFile == nil {
 		return 0, io.ErrClosedPipe
 	}
-	return s.ptyFile.Read(p)
+	n, err := s.ptyFile.Read(p)
+	if n > 0 {
+		data := string(p[:n])
+		if strings.Contains(data, "\x1b[6n") {
+			s.ptyFile.Write([]byte("\x1b[2;2R"))
+		}
+	}
+	return n, err
+	// return s.ptyFile.Read(p)
 }
 
 func (s *ShellConnector) Close() error {

@@ -7,23 +7,23 @@ import (
 )
 
 func (ctl *ShellController) IsRunning() bool {
-	if ctl.shellExecutor == nil {
+	if ctl.ShellExecutor == nil {
 		return false
 	}
-	return ctl.shellExecutor.IsRunning()
+	return ctl.ShellExecutor.IsRunning()
 }
 
 func (ctl *ShellController) Run(command string) error {
-	if ctl.shellExecutor == nil {
+	if ctl.ShellExecutor == nil {
 		return errors.New("Fail to run command: shell executor is not initialized")
 	}
-	cmd, err := ctl.shellExecutor.Run(command)
+	cmd, err := ctl.ShellExecutor.Run(command)
 	if err != nil {
 		return err
 	}
 	if cmd != nil {
-		ctl.history.PushCmd(cmd)
-		err = ctl.persistencer.Push(cmd.Cmd)
+		ctl.History.PushCmd(cmd)
+		err = ctl.Persistencer.Push(cmd.Cmd)
 		if err != nil {
 			return err
 		}
@@ -32,9 +32,9 @@ func (ctl *ShellController) Run(command string) error {
 }
 
 func (ctl *ShellController) GetHistory() []*executordomain.Cmd {
-	return ctl.history.GetCmd()
+	return ctl.History.GetCmd()
 }
 
 func (ctl *ShellController) LastCmd() *executordomain.Cmd {
-	return ctl.history.LastCmd()
+	return ctl.History.LastCmd()
 }

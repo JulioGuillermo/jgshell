@@ -8,37 +8,37 @@ import (
 )
 
 func (ctl *ShellController) GetShell() (string, error) {
-	if ctl.shellDetector == nil {
+	if ctl.ShellDetector == nil {
 		return "", errors.New("Shell detector not initialized")
 	}
-	return ctl.shellDetector.DetectShell()
+	return ctl.ShellDetector.DetectShell()
 }
 
 func (ctl *ShellController) WrapShell() error {
-	if ctl.shellWrapper == nil {
+	if ctl.ShellWrapper == nil {
 		return errors.New("Fail to wrap uninitialized shell")
 	}
-	ctl.shellExecutor.StopWith(-12, "Stop and wrap shell")
-	return ctl.shellWrapper.WrapShell()
+	ctl.ShellExecutor.StopWith(-12, "Stop and wrap shell")
+	return ctl.ShellWrapper.WrapShell()
 }
 
 func (ctl *ShellController) SetSize(width, height int) error {
-	if ctl.shell == nil {
+	if ctl.Shell == nil {
 		return nil
 	}
-	return ctl.shell.SetSize(uint16(height), uint16(width))
+	return ctl.Shell.SetSize(uint16(height), uint16(width))
 }
 
 func (ctl *ShellController) OnClose(f func(controllerdomain.ShellController)) {
-	if ctl.shell == nil {
+	if ctl.Shell == nil {
 		return
 	}
-	ctl.shell.OnClose(func(fs shelldomain.FullShell) { f(ctl) })
+	ctl.Shell.OnClose(func(fs shelldomain.FullShell) { f(ctl) })
 }
 
 func (ctl *ShellController) Close() error {
-	if ctl.shell == nil {
+	if ctl.Shell == nil {
 		return nil
 	}
-	return ctl.shell.Close()
+	return ctl.Shell.Close()
 }

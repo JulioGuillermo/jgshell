@@ -47,6 +47,27 @@ func main() {
 	}
 	defer ctl.Close()
 	ctl.SetSize(24, 80)
+
+	if shell {
+		// ctl.Shell.Write([]byte("printf   '\\nhello\\n'\n"))
+		// for {
+		// 	buf := make([]byte, 1024)
+		// 	n, err := ctl.Shell.Read(buf)
+		// 	if err != nil {
+		// 		fmt.Printf("Fail to read from shell: %v", err)
+		// 		os.Exit(1)
+		// 	}
+		// 	fmt.Printf("%s", buf[:n])
+		// }
+		shell, err := ctl.GetShell()
+		if err != nil {
+			fmt.Printf("Fail to get shell: %v", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Shell: %s\n", shell)
+		return
+	}
+
 	err = ctl.WrapShell()
 	if err != nil {
 		fmt.Printf("Fail to wrap shell: %v", err)
@@ -77,15 +98,6 @@ func main() {
 			status.Git.Deleted,
 			status.Git.Conflicts,
 		)
-		return
-	}
-	if shell {
-		shell, err := ctl.GetShell()
-		if err != nil {
-			fmt.Printf("Fail to get shell: %v", err)
-			os.Exit(1)
-		}
-		fmt.Printf("Shell: %s\n", shell)
 		return
 	}
 

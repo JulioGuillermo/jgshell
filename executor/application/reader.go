@@ -60,6 +60,7 @@ func (r *Reader) Read(f func(string) (string, bool)) (string, error) {
 			continue
 		}
 		output, stop = f(output + string(buf[:n]))
+		// fmt.Println(output)
 		if stop {
 			break
 		}

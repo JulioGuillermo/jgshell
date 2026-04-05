@@ -24,24 +24,24 @@ import (
 )
 
 type ShellController struct {
-	locker sync.Locker
+	Locker sync.Locker
 
-	uuidGenerator  toolsdomain.UUIDGenerator
-	outputCleanner toolsdomain.OutputCleaner
+	UUIDGenerator  toolsdomain.UUIDGenerator
+	OutputCleanner toolsdomain.OutputCleaner
 
-	persistencer persistencedomain.PersistenceCtl
-	history      executordomain.History
+	Persistencer persistencedomain.PersistenceCtl
+	History      executordomain.History
 
-	shell               shelldomain.FullShell
-	shellDetector       shelldetectordomain.ShellDetector
-	shellWrapper        wrapperdomain.ShellWrapper
-	shellCmdWrapper     wrapperdomain.CmdWrapper
-	shellSimpleExecutor executordomain.SimpleExecutor
-	shellFastExecutor   executordomain.FastExecutor
-	shellExecutor       executordomain.Executor
+	Shell               shelldomain.FullShell
+	ShellDetector       shelldetectordomain.ShellDetector
+	ShellWrapper        wrapperdomain.ShellWrapper
+	ShellCmdWrapper     wrapperdomain.CmdWrapper
+	ShellSimpleExecutor executordomain.SimpleExecutor
+	ShellFastExecutor   executordomain.FastExecutor
+	ShellExecutor       executordomain.Executor
 
-	statusLoader statusdomain.StatusLoader
-	autocomplete autocompletedomain.Autocomplete
+	StatusLoader statusdomain.StatusLoader
+	Autocomplete autocompletedomain.Autocomplete
 }
 
 func NewShellController(cmd string) (*ShellController, error) {
@@ -51,11 +51,11 @@ func NewShellController(cmd string) (*ShellController, error) {
 	}
 
 	ctl := &ShellController{
-		locker:         &sync.Mutex{},
-		uuidGenerator:  toolsinfrastructure.NewUUIDGenerator(),
-		outputCleanner: toolsapplication.NewOutputCleaner(),
-		history:        executorapplication.NewHistory(),
-		persistencer:   persistenceCtl,
+		Locker:         &sync.Mutex{},
+		UUIDGenerator:  toolsinfrastructure.NewUUIDGenerator(),
+		OutputCleanner: toolsapplication.NewOutputCleaner(),
+		History:        executorapplication.NewHistory(),
+		Persistencer:   persistenceCtl,
 	}
 
 	err = ctl.initShell(cmd)
@@ -81,23 +81,23 @@ func (ctl *ShellController) initShell(cmd string) error {
 	if err != nil {
 		return err
 	}
-	ctl.shell = sh
+	ctl.Shell = sh
 	return nil
 }
 
 func (ctl *ShellController) initExecutors() error {
-	ctl.shellSimpleExecutor = executorapplication.NewSimpleExecutor(ctl.shell, ctl.locker, ctl.uuidGenerator)
-	ctl.shellDetector = shelldetectorapplication.NewShellDetector(ctl.shellSimpleExecutor)
-	ctl.shellWrapper = wrapperinfrastructure.NewShellWrapper(ctl.shell, ctl.shellDetector)
-	ctl.shellCmdWrapper = wrapperapplication.NewCmdWrapper()
-	ctl.shellFastExecutor = executorapplication.NewFastExecutor(ctl.shell, ctl.locker, ctl.shellCmdWrapper)
-	ctl.shellExecutor = executorapplication.NewExecutor(ctl.shell, ctl.locker, ctl.shellCmdWrapper, ctl.uuidGenerator)
+	ctl.ShellSimpleExecutor = executorapplication.NewSimpleExecutor(ctl.Shell, ctl.Locker, ctl.UUIDGenerator)
+	ctl.ShellDetector = shelldetectorapplication.NewShellDetector(ctl.ShellSimpleExecutor)
+	ctl.ShellWrapper = wrapperinfrastructure.NewShellWrapper(ctl.Shell, ctl.ShellDetector)
+	ctl.ShellCmdWrapper = wrapperapplication.NewCmdWrapper()
+	ctl.ShellFastExecutor = executorapplication.NewFastExecutor(ctl.Shell, ctl.Locker, ctl.ShellCmdWrapper)
+	ctl.ShellExecutor = executorapplication.NewExecutor(ctl.Shell, ctl.Locker, ctl.ShellCmdWrapper, ctl.UUIDGenerator)
 
 	return nil
 }
 
 func (ctl *ShellController) initFeatures() error {
-	ctl.statusLoader = statusinfrastructure.NewStatusLoader(ctl.shellDetector, ctl.shellFastExecutor)
-	ctl.autocomplete = autocompleteinfrastructure.NewAutocomplete(ctl.shellDetector, ctl.shellFastExecutor)
+	ctl.StatusLoader = statusinfrastructure.NewStatusLoader(ctl.ShellDetector, ctl.ShellFastExecutor)
+	ctl.Autocomplete = autocompleteinfrastructure.NewAutocomplete(ctl.ShellDetector, ctl.ShellFastExecutor)
 	return nil
 }
