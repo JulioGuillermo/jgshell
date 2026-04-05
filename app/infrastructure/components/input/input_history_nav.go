@@ -15,6 +15,7 @@ func (i *Input) HistoryUp() {
 		i.SetValue(i.historyItems[i.historyIdx])
 	}
 }
+
 func (i *Input) HistoryDown() {
 	if i.GetCurrentLineRow() < i.GetLinesCount()-1 {
 		return
