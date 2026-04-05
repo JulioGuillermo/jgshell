@@ -5,22 +5,8 @@ import (
 )
 
 func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	running := a.ctl.IsRunning()
 	var cmds []tea.Cmd
-
-	switch msg := msg.(type) {
-	case tickMsg:
-		cmds = append(cmds, doTick())
-	case tea.KeyMsg:
-		if c := a.HandleKeyPress(msg); c != nil {
-			cmds = append(cmds, c)
-		}
-	case tea.WindowSizeMsg:
-		if c := a.HandleWindowSize(msg); c != nil {
-			cmds = append(cmds, c)
-		}
-	case tea.PasteMsg:
-		a.sendPaste(msg)
-	}
 
 	a.UpdateStatus()
 
@@ -43,6 +29,21 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if c != nil {
 			cmds = append(cmds, c)
 		}
+	}
+
+	switch msg := msg.(type) {
+	case tickMsg:
+		cmds = append(cmds, doTick())
+	case tea.KeyMsg:
+		if c := a.HandleKeyPress(msg, running); c != nil {
+			cmds = append(cmds, c)
+		}
+	case tea.WindowSizeMsg:
+		if c := a.HandleWindowSize(msg); c != nil {
+			cmds = append(cmds, c)
+		}
+	case tea.PasteMsg:
+		a.sendPaste(msg)
 	}
 
 	height := a.FreeHeight()

@@ -47,6 +47,7 @@ func (h *History) SetItems(items []string) {
 	for i, item := range h.items {
 		listItems[i] = item
 	}
+	h.list.ResetSelected()
 	h.list.SetItems(listItems)
 	h.list.SetFilterText("")
 }

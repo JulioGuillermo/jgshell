@@ -4,7 +4,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 )
 
-func (a *App) HandleKeyPress(msg tea.KeyMsg) tea.Cmd {
+func (a *App) HandleKeyPress(msg tea.KeyMsg, running bool) tea.Cmd {
 	keys := msg.String()
 	switch keys {
 	case "alt+shift+e", "ctrl+e":
@@ -16,7 +16,7 @@ func (a *App) HandleKeyPress(msg tea.KeyMsg) tea.Cmd {
 		}
 	}
 
-	if a.ctl.IsRunning() {
+	if running {
 		a.sendKey(msg)
 		return nil
 	}

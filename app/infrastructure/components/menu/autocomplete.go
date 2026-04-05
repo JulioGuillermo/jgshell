@@ -46,6 +46,7 @@ func (a *Autocomplete) SetItems(items []string) {
 	for i, item := range a.items {
 		listItems[i] = item
 	}
+	a.list.ResetSelected()
 	a.list.SetItems(listItems)
 	a.list.SetFilterText("")
 }
