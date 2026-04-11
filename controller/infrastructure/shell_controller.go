@@ -9,6 +9,8 @@ import (
 	executordomain "github.com/julioguillermo/jgshell/executor/domain"
 	persistencedomain "github.com/julioguillermo/jgshell/persistence/domain"
 	persistenceinfrastructure "github.com/julioguillermo/jgshell/persistence/infrastructure"
+	routerapplication "github.com/julioguillermo/jgshell/router/application"
+	routerdomain "github.com/julioguillermo/jgshell/router/domain"
 	shelldomain "github.com/julioguillermo/jgshell/shell/domain"
 	shellinfrastructure "github.com/julioguillermo/jgshell/shell/infrastructure"
 	shelldetectorapplication "github.com/julioguillermo/jgshell/shelldetector/application"
@@ -31,6 +33,8 @@ type ShellController struct {
 
 	Persistencer persistencedomain.PersistenceCtl
 	History      executordomain.History
+
+	Router routerdomain.Router
 
 	Shell               shelldomain.FullShell
 	ShellDetector       shelldetectordomain.ShellDetector
@@ -82,16 +86,38 @@ func (ctl *ShellController) initShell(cmd string) error {
 		return err
 	}
 	ctl.Shell = sh
+	router, err := routerapplication.NewRouter(
+		ctl.Shell,
+		routerapplication.NewQueue(
+			executordomain.SimpleQueue,
+			wrapperdomain.REWrapStartSimple,
+			wrapperdomain.REWrapDoneSimple,
+		),
+		routerapplication.NewQueue(
+			executordomain.FastQueue,
+			wrapperdomain.REWrapStartFast,
+			wrapperdomain.REWrapDone,
+		),
+		routerapplication.NewQueue(
+			executordomain.DefaultQueue,
+			wrapperdomain.REWrapStart,
+			wrapperdomain.REWrapDone,
+		),
+	)
+	if err != nil {
+		return err
+	}
+	ctl.Router = router
 	return nil
 }
 
 func (ctl *ShellController) initExecutors() error {
-	ctl.ShellSimpleExecutor = executorapplication.NewSimpleExecutor(ctl.Shell, ctl.Locker, ctl.UUIDGenerator)
+	ctl.ShellSimpleExecutor = executorapplication.NewSimpleExecutor(ctl.Router, ctl.UUIDGenerator)
 	ctl.ShellDetector = shelldetectorapplication.NewShellDetector(ctl.ShellSimpleExecutor)
 	ctl.ShellWrapper = wrapperinfrastructure.NewShellWrapper(ctl.Shell, ctl.ShellDetector)
 	ctl.ShellCmdWrapper = wrapperapplication.NewCmdWrapper()
-	ctl.ShellFastExecutor = executorapplication.NewFastExecutor(ctl.Shell, ctl.ShellDetector, ctl.Locker, ctl.ShellCmdWrapper)
-	ctl.ShellExecutor = executorapplication.NewExecutor(ctl.Shell, ctl.ShellDetector, ctl.Locker, ctl.ShellCmdWrapper, ctl.UUIDGenerator)
+	ctl.ShellFastExecutor = executorapplication.NewFastExecutor(ctl.Router, ctl.ShellDetector, ctl.ShellCmdWrapper)
+	ctl.ShellExecutor = executorapplication.NewExecutor(ctl.Router, ctl.ShellDetector, ctl.ShellCmdWrapper, ctl.UUIDGenerator)
 
 	return nil
 }

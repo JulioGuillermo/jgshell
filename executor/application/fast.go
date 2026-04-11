@@ -6,60 +6,57 @@ import (
 
 	"github.com/acarl005/stripansi"
 	executordomain "github.com/julioguillermo/jgshell/executor/domain"
-	shelldomain "github.com/julioguillermo/jgshell/shell/domain"
+	routerdomain "github.com/julioguillermo/jgshell/router/domain"
 	shelldetectordomain "github.com/julioguillermo/jgshell/shelldetector/domain"
 	wrapperdomain "github.com/julioguillermo/jgshell/wrapper/domain"
 )
 
 type FastExecutor struct {
-	shell         shelldomain.Shell
+	router        routerdomain.Router
 	shellDetector shelldetectordomain.ShellDetector
 	locker        sync.Locker
 	wrapper       wrapperdomain.CmdWrapper
-	reader        executordomain.Reader
 }
 
 func NewFastExecutor(
-	shell shelldomain.Shell,
+	router routerdomain.Router,
 	shellDetector shelldetectordomain.ShellDetector,
-	locker sync.Locker,
 	wrapper wrapperdomain.CmdWrapper,
 ) *FastExecutor {
 	return &FastExecutor{
-		shell:         shell,
+		locker:        &sync.Mutex{},
+		router:        router,
 		shellDetector: shellDetector,
-		locker:        locker,
 		wrapper:       wrapper,
-		reader:        NewReader(shell),
 	}
 }
 
 func (e *FastExecutor) Run(command string) (string, int, error) {
+	e.locker.Lock()
+	defer e.locker.Unlock()
+
 	sh, err := e.shellDetector.DetectShell()
 	if err != nil {
 		return "", -1, err
 	}
 
-	e.locker.Lock()
-	defer e.locker.Unlock()
-
-	wrappedCommand := e.wrapper.WrapCmd(sh, command)
-	_, err = e.shell.Write([]byte(wrappedCommand))
+	e.router.ClearQueue(
+		executordomain.FastQueue,
+	)
+	wrappedCommand := e.wrapper.FastWrapCmd(sh, command)
+	err = e.router.WriteString(wrappedCommand)
 	if err != nil {
 		return err.Error(), -2, err
 	}
 
-	started := false
-	code := -10
+	element, err := e.router.ReadFrom(executordomain.FastQueue)
+	if err != nil {
+		return err.Error(), -2, err
+	}
 
-	output, err := e.reader.Read(func(s string) (string, bool) {
-		result := e.wrapper.UnwrapCmd(s, started)
-		started = result.Started
-		code = result.Code
-		return result.Output, !result.IsRunning
-	})
-
-	return strings.TrimSpace(output), code, err
+	output := element.FinalString()
+	result := e.wrapper.FastUnwrapCmd(output, false)
+	return strings.TrimSpace(result.Output), result.Code, nil
 }
 
 func (e *FastExecutor) RunAndClean(command string) (string, int, error) {

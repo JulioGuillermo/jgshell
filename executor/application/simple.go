@@ -6,23 +6,22 @@ import (
 	"sync"
 
 	executordomain "github.com/julioguillermo/jgshell/executor/domain"
-	shelldomain "github.com/julioguillermo/jgshell/shell/domain"
+	routerdomain "github.com/julioguillermo/jgshell/router/domain"
 	toolsdomain "github.com/julioguillermo/jgshell/tools/domain"
+	wrapperdomain "github.com/julioguillermo/jgshell/wrapper/domain"
 )
 
 type SimpleExecutor struct {
-	shell         shelldomain.Shell
+	router        routerdomain.Router
 	locker        sync.Locker
 	uuidGenerator toolsdomain.UUIDGenerator
-	reader        executordomain.Reader
 }
 
-func NewSimpleExecutor(shell shelldomain.Shell, locker sync.Locker, uuidGenerator toolsdomain.UUIDGenerator) *SimpleExecutor {
+func NewSimpleExecutor(router routerdomain.Router, uuidGenerator toolsdomain.UUIDGenerator) *SimpleExecutor {
 	return &SimpleExecutor{
-		shell:         shell,
-		locker:        locker,
+		locker:        &sync.Mutex{},
+		router:        router,
 		uuidGenerator: uuidGenerator,
-		reader:        NewReader(shell),
 	}
 }
 
@@ -32,25 +31,29 @@ func (s *SimpleExecutor) Run(command string) (string, error) {
 
 	uuid := s.uuidGenerator.Generate()
 
+	s.router.ClearQueue(
+		executordomain.SimpleQueue,
+	)
 	_, err := fmt.Fprintf(
-		s.shell,
-		`printf "<<<JGSHELL_START;%%s>>> %%s <<<JGSHELL_END;%%s>>>\r" "%s" "$(%s)" "%s"
+		s.router,
+		`%s "%s" "$(%s)" "%s"
 `,
+		wrapperdomain.SimpleWrapper,
 		uuid, command, uuid,
 	)
 	if err != nil {
 		return "", err
 	}
 
-	Start := fmt.Sprintf(`<<<JGSHELL_START;%s>>>`, uuid)
-	End := fmt.Sprintf(`<<<JGSHELL_END;%s>>>`, uuid)
-
-	output, err := s.reader.Read(func(s string) (string, bool) {
-		return s, strings.Contains(s, End)
-	})
+	element, err := s.router.ReadFrom(executordomain.SimpleQueue)
 	if err != nil {
 		return "", err
 	}
+
+	output := element.FinalString()
+
+	Start := fmt.Sprintf(`<<<JGSHELL_START;%s>>>`, uuid)
+	End := fmt.Sprintf(`<<<JGSHELL_END;%s>>>`, uuid)
 
 	idx := strings.Index(output, Start)
 	if idx != -1 {

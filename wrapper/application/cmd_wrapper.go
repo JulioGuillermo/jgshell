@@ -11,35 +11,53 @@ import (
 )
 
 type CmdWrapper struct {
-	StartMarkerRegex *regexp.Regexp
-	EndMarkerRegex   *regexp.Regexp
-}
-
-func NewCmdWrapperWithMarkers(startMarker, endMarker *regexp.Regexp) *CmdWrapper {
-	return &CmdWrapper{
-		StartMarkerRegex: startMarker,
-		EndMarkerRegex:   endMarker,
-	}
+	StartMarkerFastRegex *regexp.Regexp
+	StartMarkerRegex     *regexp.Regexp
+	EndMarkerRegex       *regexp.Regexp
 }
 
 func NewCmdWrapper() *CmdWrapper {
-	return NewCmdWrapperWithMarkers(
-		regexp.MustCompile(`\033]JGSHELL;START;(.+);(.+);>>>\007`),
-		regexp.MustCompile(`\033]JGSHELL;(\d+);DONE\007`),
-	)
-}
-
-func (w *CmdWrapper) WrapCmd(sh, command string) string {
-	command = strings.TrimSpace(command)
-	switch sh {
-	case "powershell":
-		return fmt.Sprintf("printf \"\\033]JGSHELL;START;%%s;%%s;>>>\\007\" \"$(whoami)\" \"$(pwd)\" ; . {\n%s\n}\n\n\n", command)
-	default:
-		return fmt.Sprintf("printf \"\\033]JGSHELL;START;%%s;%%s;>>>\\007\" \"$(whoami)\" \"$(pwd)\" ; {\n%s\n}\n", command)
+	return &CmdWrapper{
+		StartMarkerFastRegex: regexp.MustCompile(wrapperdomain.REWrapStartFast),
+		StartMarkerRegex:     regexp.MustCompile(wrapperdomain.REWrapStart),
+		EndMarkerRegex:       regexp.MustCompile(wrapperdomain.REWrapDone),
 	}
 }
 
+func (w *CmdWrapper) FastWrapCmd(sh, command string) string {
+	return w.wrap(sh, command, true)
+}
+
+func (w *CmdWrapper) WrapCmd(sh, command string) string {
+	return w.wrap(sh, command, false)
+}
+
+func (w *CmdWrapper) wrap(sh, command string, fast bool) string {
+	var start string
+	if fast {
+		start = wrapperdomain.WrapperStartFast
+	} else {
+		start = wrapperdomain.WrapperStart
+	}
+
+	command = strings.TrimSpace(command)
+	switch sh {
+	case "powershell":
+		return fmt.Sprintf("%s ; . {\n%s\n}\n\n\n", start, command)
+	default:
+		return fmt.Sprintf("%s ; {\n%s\n}\n", start, command)
+	}
+}
+
+func (w *CmdWrapper) FastUnwrapCmd(output string, started bool) *wrapperdomain.CmdUnwrapResult {
+	return w.unwrap(output, started, true)
+}
+
 func (w *CmdWrapper) UnwrapCmd(output string, started bool) *wrapperdomain.CmdUnwrapResult {
+	return w.unwrap(output, started, false)
+}
+
+func (w *CmdWrapper) unwrap(output string, started bool, fast bool) *wrapperdomain.CmdUnwrapResult {
 	result := &wrapperdomain.CmdUnwrapResult{
 		Output:    output,
 		Started:   started,
@@ -48,16 +66,25 @@ func (w *CmdWrapper) UnwrapCmd(output string, started bool) *wrapperdomain.CmdUn
 	}
 
 	if !result.Started {
-		w.processStart(result)
-		return result
+		w.processStart(result, fast)
+		if !result.Started {
+			return result
+		}
 	}
 
 	w.processEnd(result)
 	return result
 }
 
-func (w *CmdWrapper) processStart(result *wrapperdomain.CmdUnwrapResult) {
-	match := w.StartMarkerRegex.FindStringSubmatch(result.Output)
+func (w *CmdWrapper) processStart(result *wrapperdomain.CmdUnwrapResult, fast bool) {
+	var startRegex *regexp.Regexp
+	if fast {
+		startRegex = w.StartMarkerFastRegex
+	} else {
+		startRegex = w.StartMarkerRegex
+	}
+
+	match := startRegex.FindStringSubmatch(result.Output)
 	if len(match) <= 2 {
 		return
 	}
@@ -66,7 +93,7 @@ func (w *CmdWrapper) processStart(result *wrapperdomain.CmdUnwrapResult) {
 	result.User = match[1]
 	result.Pwd = match[2]
 
-	loc := w.StartMarkerRegex.FindStringIndex(result.Output)
+	loc := startRegex.FindStringIndex(result.Output)
 	result.Output = result.Output[loc[1]:]
 }
 
