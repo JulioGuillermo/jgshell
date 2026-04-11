@@ -32,7 +32,7 @@ func (d *ShellDetector) DetectShell() (string, error) {
 	if fish {
 		return "fish", nil
 	}
-	return d.executor.Run("ps -p $$ -o comm= 2>/dev/null | sed 's/-//' || echo \"sh\"")
+	return d.executor.Run("cat /proc/$$/comm 2>/dev/null | sed 's/-//' || echo \"sh\"")
 }
 
 func (d *ShellDetector) isPWSH() (bool, error) {
