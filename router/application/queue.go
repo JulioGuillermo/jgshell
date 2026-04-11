@@ -39,6 +39,9 @@ func (q *Queue) Start() {
 }
 
 func (q *Queue) End() {
+	if q == nil || q.Last() == nil {
+		return
+	}
 	q.Last().Close()
 }
 

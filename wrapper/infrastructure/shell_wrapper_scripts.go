@@ -1,6 +1,9 @@
 package wrapperinfrastructure
 
-import "embed"
+import (
+	"embed"
+	"strings"
+)
 
 //go:embed scripts
 var Scripts embed.FS
@@ -32,7 +35,15 @@ Write-Output "Wrapper script executed successfully"
 	},
 	"fish": {
 		Script: "scripts/wrapper_fish.fish",
-		Loader: "",
+		Loader: `printf "function _jg_emit_end_marker --on-event fish_prompt
+    set -l exit_code \$status
+    printf '\\033]JGSHELL;%s;DONE\\007' \$exit_code
+end
+
+function fish_prompt
+    _jg_emit_end_marker
+end" | source
+`,
 	},
 	"nu": {
 		Script: "scripts/wrapper_nushell.nu",
@@ -58,6 +69,7 @@ EOF
 printf "Wrapper script executed successfully\n"
 `
 	}
+	config.Loader = strings.TrimSpace(config.Loader) + "\n"
 
 	script, err := Scripts.ReadFile(config.Script)
 	if err != nil {

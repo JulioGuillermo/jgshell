@@ -66,6 +66,12 @@ func main() {
 	}
 
 	if status {
+		shell, err := ctl.GetShell()
+		if err != nil {
+			fmt.Printf("Fail to get shell: %v", err)
+			os.Exit(1)
+		}
+		fmt.Printf("Shell: %s\n", shell)
 		out, exit, err := ctl.ShellFastExecutor.Run("printf 'Hello World'")
 		if err != nil {
 			fmt.Printf("Fail to run command: %v", err)

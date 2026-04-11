@@ -73,6 +73,8 @@ func (r *Router) Reset() {
 	r.readLocker.Lock()
 	defer r.readLocker.Unlock()
 
+	q := r.queues[r.queue]
+	q.End()
 	r.readed = ""
 	r.queueStartIdx = -1
 	r.queueEndIdx = -1

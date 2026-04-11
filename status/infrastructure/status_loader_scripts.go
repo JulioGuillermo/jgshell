@@ -8,17 +8,17 @@ import (
 var scripts embed.FS
 
 func (s *StatusLoader) getScript(sh string) (string, error) {
-	if sh == "powershell" {
-		script, err := scripts.ReadFile("scripts/status.ps1")
-		if err != nil {
-			return "", err
-		}
-		return string(script), nil
+	switch sh {
+	case "powershell":
+		return s.loadScript("status.ps1")
+	case "fish":
+		return s.loadScript("status.fish")
+	default:
+		return s.loadScript("status.sh")
 	}
+}
 
-	script, err := scripts.ReadFile("scripts/status.sh")
-	if err != nil {
-		return "", err
-	}
-	return string(script), nil
+func (s *StatusLoader) loadScript(script string) (string, error) {
+	output, err := scripts.ReadFile("scripts/" + script)
+	return string(output), err
 }

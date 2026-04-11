@@ -14,5 +14,5 @@ const (
 
 const (
 	REWrapDoneSimple = `<<<JGSHELL_END;([\w\d-_]+?)>>>`
-	REWrapDone       = `\033]JGSHELL;(\d+);DONE\007`
+	REWrapDone       = `\033]JGSHELL;(\d*);DONE\007`
 )
