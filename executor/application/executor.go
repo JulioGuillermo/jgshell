@@ -47,6 +47,7 @@ func (e *Executor) IsRunning() bool {
 
 func (e *Executor) StopWith(code int, msg string) {
 	e.isRunning = false
+	e.router.Reset()
 
 	if e.cmd == nil || !e.cmd.IsRunning() {
 		return
@@ -156,7 +157,9 @@ func (e *Executor) processOutput(output string) {
 	result := e.wrapper.UnwrapCmd(output, false)
 
 	e.cmd.Output = result.Output
-	e.cmd.ExitCode = result.Code
+	if e.isRunning {
+		e.cmd.ExitCode = result.Code
+	}
 
 	if result.Started {
 		e.cmd.Started = true

@@ -8,4 +8,5 @@ type Router interface {
 	WriteString(string) error
 	ReadFrom(string) (Element, error)
 	ClearQueue(name string)
+	Reset()
 }

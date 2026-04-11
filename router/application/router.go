@@ -9,9 +9,10 @@ import (
 )
 
 type Router struct {
-	locker sync.Locker
-	reader io.ReadWriter
-	queues map[string]*Queue
+	locker     sync.Locker
+	readLocker sync.Locker
+	reader     io.ReadWriter
+	queues     map[string]*Queue
 
 	buffer []byte
 	readed string
@@ -28,9 +29,10 @@ func NewRouter(reader io.ReadWriter, queues ...*Queue) (*Router, error) {
 	}
 
 	r := &Router{
-		locker: &sync.Mutex{},
-		reader: reader,
-		queues: queueMap,
+		locker:     &sync.Mutex{},
+		readLocker: &sync.Mutex{},
+		reader:     reader,
+		queues:     queueMap,
 	}
 	go r.startReader()
 	return r, nil
@@ -67,6 +69,15 @@ func (r *Router) ClearQueue(name string) {
 	queue.Clear()
 }
 
+func (r *Router) Reset() {
+	r.readLocker.Lock()
+	defer r.readLocker.Unlock()
+
+	r.readed = ""
+	r.queueStartIdx = -1
+	r.queueEndIdx = -1
+}
+
 func (r *Router) startReader() {
 	r.buffer = make([]byte, 1024)
 	r.queueStartIdx = -1
@@ -85,6 +96,10 @@ func (r *Router) read() {
 	if n == 0 {
 		return
 	}
+
+	r.readLocker.Lock()
+	defer r.readLocker.Unlock()
+
 	r.readed += string(r.buffer[:n])
 
 	if r.queueStartIdx == -1 {
