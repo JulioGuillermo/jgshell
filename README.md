@@ -86,10 +86,29 @@
   - `zsh`
   - `sh`
   - `ksh`
+  - `powershell`
   - other `sh`-compatible shells when their prompt and execution behavior remain compatible with the wrapper approach
 - Detects the active shell from inside the session.
 - Command wrapping, status loading, and autocomplete are currently documented around the POSIX shell path.
-- `powershell`, `fish`, and possibly `nushell` are planned targets, but they are not supported yet and should be treated as work in progress.
+- `fish` and `nushell` are planned targets, but they are not supported yet and should be treated as work in progress.
+
+### Docker Usage
+
+To run `jgshell` inside a Docker container, you **must** use the `-i` flag with the `docker run` command to force the shell to load its profiles. For example:
+
+```bash
+jgshell docker run --rm -i alpine sh -i
+```
+
+Without the `-i` flag, interactive shell features may not initialize correctly inside the container.
+
+### PowerShell Usage
+
+PowerShell (`pwsh`) must be initialized in **NonInteractive** mode for `jgshell` to work correctly. For example:
+
+```bash
+jgshell pwsh -NonInteractive
+```
 
 ## Architecture
 
