@@ -5,4 +5,5 @@ _jg_prompt() {
     printf '\033]JGSHELL;%s;DONE\007' "$EXIT_CODE"
 }
 
+PROMPT_COMMAND=""
 PS1='$(_jg_prompt) '
